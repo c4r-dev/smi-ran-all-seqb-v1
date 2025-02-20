@@ -154,7 +154,7 @@ h2 {
 
   .responsive-text {
     font-size: 14px;
-    padding-top: 10px 0 0 0;
+    padding-top: 20px 0 0 0;
     margin-top: 100px; /* Less space for medium screens */
   }
 }
@@ -163,6 +163,6 @@ h2 {
   .responsive-text {
     margin-top: 80px;
     font-size: 14px;
-    padding: 10 0 0 0;
+    padding: 20 0 0 0;
   }
 }
