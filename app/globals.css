@@ -354,3 +354,23 @@ button,
     margin-top: 30px;
   }
 }
+
+.regenerate-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  margin: 20px auto;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #6F00FF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.regenerate-button:hover {
+  background-color: #5700CA;
+}

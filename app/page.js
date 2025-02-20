@@ -94,17 +94,16 @@ export default function Page() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <p>What happens when these allocation sequences are used for larger studies?</p>
-      <button onClick={regenerateSequences}>Generate new sequences (N=300)</button>
+      <h1>What happens when these allocation sequences are used for larger studies?</h1>
       <div style={{ display: "flex", marginTop: "20px" }}>
         {["systematic", "manual", "random"].map((key) => (
           <div key={key} style={{ flex: 1, margin: "0 10px" }}>
             <h3>
               {key === "systematic"
-                ? "Alternating allocation"
+                ? "Alternating Allocation"
                 : key === "manual"
-                ? "Manual allocation"
-                : "Randomized allocation"}
+                  ? "Manual Allocation"
+                  : "Randomized Allocation"}
             </h3>
             <div style={{ wordWrap: "break-word", marginBottom: "10px" }}>
               {sequences[key].join(" ")}
@@ -114,6 +113,11 @@ export default function Page() {
           </div>
         ))}
       </div>
+
+      <button onClick={regenerateSequences} className="regenerate-button">
+        Regenerate sequences
+      </button>
+
     </div>
   );
 }
