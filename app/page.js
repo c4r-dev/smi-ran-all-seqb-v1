@@ -93,8 +93,10 @@ export default function Page() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>What happens when these allocation sequences are used for larger studies?</h1>
+    <div>
+      <h1 style={{ marginTop: "50px", textAlign: "center", width: "100%" }}>
+        What happens when these allocation sequences are used for larger studies?
+      </h1>
       <div style={{ display: "flex", marginTop: "20px" }}>
         {["systematic", "manual", "random"].map((key) => (
           <div key={key} style={{ flex: 1, margin: "0 10px" }}>
@@ -109,7 +111,9 @@ export default function Page() {
               {sequences[key].join(" ")}
             </div>
             <Plot {...makeCountPlot(sequences[key])} style={{ height: "200px" }} />
-            <p>Longest run: {getLongestRun(sequences[key])}</p>
+            <p style={{ textAlign: "center", width: "100%" }}>
+              Longest run: {getLongestRun(sequences[key])}
+            </p>
           </div>
         ))}
       </div>
