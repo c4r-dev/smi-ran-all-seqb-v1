@@ -97,9 +97,26 @@ export default function Page() {
       <h1 style={{ marginTop: "50px", textAlign: "center", width: "100%" }}>
         What happens when these allocation sequences are used for larger studies (n=300)?
       </h1>
-      <div style={{ display: "flex", marginTop: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "20px",
+          marginTop: "20px",
+        }}
+      >
         {["systematic", "manual", "random"].map((key) => (
-          <div key={key} style={{ flex: 1, margin: "0 10px" }}>
+          <div
+            key={key}
+            style={{
+              flex: "1 1 300px",  /* Allows it to shrink but maintains width */
+              maxWidth: "400px",  /* Prevents it from stretching too much */
+              minWidth: "280px",  /* Ensures readability */
+              margin: "10px auto",
+            }}
+          >
+
             <h3>
               {key === "systematic"
                 ? "Alternating Allocation"
