@@ -56,7 +56,7 @@ const makeCountPlot = (sequence) => {
         x: Object.keys(counts),
         y: Object.values(counts),
         type: "bar",
-        marker: { color: ["blue", "red"] },
+        marker: { color: ["#39E1F8", "#FFA800"] },
       },
     ],
     layout: {
