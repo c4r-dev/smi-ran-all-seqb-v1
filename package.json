@@ -10,11 +10,11 @@
     "react-plotly.js": "^2.6.0",
     "react-scripts": "5.0.1"
   },
- "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -32,5 +32,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react": "19.0.10"
   }
 }

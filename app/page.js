@@ -94,7 +94,6 @@ export default function Page() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Allocation sequences at scale</h1>
       <p>What happens when these allocation sequences are used for larger studies?</p>
       <button onClick={regenerateSequences}>Generate new sequences (N=300)</button>
       <div style={{ display: "flex", marginTop: "20px" }}>
