@@ -95,7 +95,7 @@ export default function Page() {
   return (
     <div>
       <h1 style={{ marginTop: "50px", textAlign: "center", width: "100%" }}>
-        What happens when these allocation sequences are used for larger studies?
+        What happens when these allocation sequences are used for larger studies (n=300)?
       </h1>
       <div style={{ display: "flex", marginTop: "20px" }}>
         {["systematic", "manual", "random"].map((key) => (
