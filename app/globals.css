@@ -117,14 +117,16 @@ h2 {
 }
 
 .responsive-text {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   width: 100%;
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
   font-size: clamp(16px, 4vw, 22px);
-  padding: 0 5%;
+  padding: 0 0%;
   margin: 120px auto 20px auto;
 }
 
