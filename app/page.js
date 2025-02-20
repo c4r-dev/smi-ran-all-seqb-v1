@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
-import Plot from "react-plotly.js";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 const generateSystematic = (n = 300) => {
   return Array.from({ length: n }, (_, i) => (i % 2 === 0 ? "A" : "B"));
@@ -67,11 +69,20 @@ const makeCountPlot = (sequence) => {
 };
 
 export default function Page() {
-  const [sequences, setSequences] = useState({
-    systematic: generateSystematic(),
-    manual: generateManual(),
-    random: generateRandom(),
-  });
+  const [sequences, setSequences] = useState(null);
+
+  useEffect(() => {
+    // Generate sequences only after hydration
+    setSequences({
+      systematic: generateSystematic(),
+      manual: generateManual(),
+      random: generateRandom(),
+    });
+  }, []);
+
+  if (!sequences) {
+    return <div>Loading...</div>; // Prevent rendering mismatches
+  }
 
   const regenerateSequences = () => {
     setSequences({
@@ -87,7 +98,7 @@ export default function Page() {
       <p>What happens when these allocation sequences are used for larger studies?</p>
       <button onClick={regenerateSequences}>Generate new sequences (N=300)</button>
       <div style={{ display: "flex", marginTop: "20px" }}>
-        {["systematic", "manual", "random"].map((key, idx) => (
+        {["systematic", "manual", "random"].map((key) => (
           <div key={key} style={{ flex: 1, margin: "0 10px" }}>
             <h3>
               {key === "systematic"
