@@ -94,9 +94,9 @@ export default function Page() {
 
   return (
     <div>
-      <h1 style={{ marginTop: "50px", textAlign: "center", width: "100%" }}>
+      <h2 className="responsive-text">
         What happens when these allocation sequences are used for larger studies (n=300)?
-      </h1>
+      </h2>
       <div
         style={{
           display: "flex",

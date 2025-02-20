@@ -116,6 +116,18 @@ h2 {
   background-color: #5700CA !important;
 }
 
+.responsive-text {
+  display: block;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: clamp(16px, 4vw, 22px);
+  padding: 0 5%;
+  margin: 120px auto 20px auto;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .header {
@@ -136,5 +148,19 @@ h2 {
   .regenerate-button {
     width: 80%;
     max-width: 200px;
+  }
+
+  .responsive-text {
+    font-size: 14px;
+    padding: 0 10%;
+    margin-top: 100px; /* Less space for medium screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-text {
+    margin-top: 80px;
+    font-size: 14px;
+    padding: 0 10%;
   }
 }
