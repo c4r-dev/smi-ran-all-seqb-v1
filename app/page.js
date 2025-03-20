@@ -9,20 +9,19 @@ const generateSystematic = (n = 300) => {
 };
 
 const generateManual = (n = 300) => {
-  const result = [];
-  let lastThree = ["A", "B", "A"];
-
-  for (let i = 0; i < n; i++) {
-    if (lastThree.every((x) => x === "A")) {
-      result.push("B");
-    } else if (lastThree.every((x) => x === "B")) {
-      result.push("A");
-    } else {
-      result.push(Math.random() < 0.5 ? "A" : "B");
-    }
-    lastThree = [...lastThree.slice(1), result[i]];
+  // Ensure n is even for equal distribution
+  if (n % 2 !== 0) n = n + 1;
+  
+  // Create an array with exactly n/2 As and n/2 Bs
+  const elements = Array(n/2).fill('A').concat(Array(n/2).fill('B'));
+  
+  // Shuffle the array using Fisher-Yates algorithm
+  for (let i = elements.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [elements[i], elements[j]] = [elements[j], elements[i]];
   }
-  return result;
+  
+  return elements;
 };
 
 const generateRandom = (n = 300) => {
