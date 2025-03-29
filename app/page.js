@@ -9,19 +9,60 @@ const generateSystematic = (n = 300) => {
 };
 
 const generateManual = (n = 300) => {
-  // Ensure n is even for equal distribution
+  // Ensure n is even for easier distribution
   if (n % 2 !== 0) n = n + 1;
-  
-  // Create an array with exactly n/2 As and n/2 Bs
-  const elements = Array(n/2).fill('A').concat(Array(n/2).fill('B'));
-  
-  // Shuffle the array using Fisher-Yates algorithm
+
+  // Decide the difference between A and B (0, 2, or 4)
+  const possibleDifferences = [0, 2, 4];
+  const difference = possibleDifferences[Math.floor(Math.random() * possibleDifferences.length)];
+
+  // Calculate counts based on the difference
+  const countA = Math.floor(n / 2) + Math.floor(difference / 2);
+  const countB = n - countA;
+
+  // Create initial array with the right counts
+  const elements = Array(countA).fill('A').concat(Array(countB).fill('B'));
+
+  // Custom shuffling that attempts to break up long runs
+  let result = [];
+  let prevElement = null;
+  let runLength = 0;
+  const maxRunLength = 3; // Maximum allowed run length
+
+  // First shuffle using Fisher-Yates
   for (let i = elements.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [elements[i], elements[j]] = [elements[j], elements[i]];
   }
-  
-  return elements;
+
+  // Then process the shuffled array to avoid long runs
+  for (let i = 0; i < elements.length; i++) {
+    const currentElement = elements[i];
+
+    if (currentElement === prevElement) {
+      runLength++;
+
+      // If run would be too long, look ahead to find a different element
+      if (runLength >= maxRunLength) {
+        // Find next different element to swap with
+        for (let j = i + 1; j < elements.length; j++) {
+          if (elements[j] !== currentElement) {
+            // Swap elements
+            [elements[i], elements[j]] = [elements[j], elements[i]];
+            runLength = 1; // Reset run counter
+            break;
+          }
+        }
+      }
+    } else {
+      runLength = 1;
+    }
+
+    result.push(elements[i]);
+    prevElement = elements[i];
+  }
+
+  return result;
 };
 
 const generateRandom = (n = 300) => {
