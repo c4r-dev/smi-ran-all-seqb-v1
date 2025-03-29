@@ -130,239 +130,94 @@ const calculatePValue = (sequence, type) => {
   }
 };
 
-// Function to render sequence as colored blocks
-const SequenceVisualizer = ({ sequence }) => {
-  const chunkSize = 30; // Elements per row
-  const renderSquares = () => {
-    const rows = [];
+// Bar Chart Sequence Visualizer
+const BarChartVisualizer = ({ sequence }) => {
+  // Calculate counts for A and B
+  const countA = sequence.filter(item => item === 'A').length;
+  const countB = sequence.filter(item => item === 'B').length;
 
-    for (let i = 0; i < sequence.length; i += chunkSize) {
-      const chunk = sequence.slice(i, i + chunkSize);
-      const rowItems = chunk.map((item, index) => (
-        <div key={`${i}-${index}`} style={{
-          display: 'inline-block',
-          width: '18px',
-          height: '18px',
-          margin: '1px',
-          backgroundColor: item === 'A' ? '#39E1F8' : '#FFA800',
-          color: 'white',
-          fontSize: '12px',
-          textAlign: 'center',
-          lineHeight: '18px'
-        }}>
-          {item}
-        </div>
-      ));
-
-      rows.push(
-        <div key={`row-${i}`} style={{ marginBottom: '2px' }}>
-          {rowItems}
-        </div>
-      );
-    }
-
-    return rows;
-  };
-
-  return (
-    <div style={{
-      backgroundColor: '#f9f9f9',
-      padding: '15px',
-      borderRadius: '8px',
-      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
-      fontFamily: 'monospace'
-    }}>
-      {renderSquares()}
-    </div>
-  );
-};
-
-// Group distribution visualizer component
-const GroupDistributionVisualizer = ({ sequence }) => {
-  const counts = sequence.reduce((acc, val) => {
-    acc[val] = (acc[val] || 0) + 1;
-    return acc;
-  }, {});
-
+  // Calculate percentages
   const total = sequence.length;
-  const countA = counts["A"] || 0;
-  const countB = counts["B"] || 0;
   const percentA = (countA / total * 100).toFixed(1);
   const percentB = (countB / total * 100).toFixed(1);
 
-  const barHeight = 40;
+  // Bar styling
+  const barHeight = 50;
+  const maxBarWidth = 100; // percentage
 
   return (
     <div style={{
       backgroundColor: '#f9f9f9',
-      padding: '20px',
+      padding: '25px',
       borderRadius: '8px',
-      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)'
+      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
+      fontFamily: 'monospace',
+      marginBottom: '20px'
     }}>
-      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Group Distribution</h4>
+      <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>
+        Sequence Distribution
+      </h4>
 
-      <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
-        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
-          Group A:
+      {/* Group A Bar */}
+      <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
+        <div style={{
+          width: '80px',
+          textAlign: 'right',
+          paddingRight: '15px',
+          fontWeight: 'bold',
+          fontSize: '16px'
+        }}>
+          A
         </div>
         <div style={{ flex: 1 }}>
           <div style={{
             height: `${barHeight}px`,
             width: `${percentA}%`,
             backgroundColor: '#39E1F8',
-            borderRadius: '4px',
+            borderRadius: '6px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'width 0.5s ease'
           }}>
-            <span style={{ color: 'white', fontWeight: 'bold' }}>{countA} ({percentA}%)</span>
+            <span style={{
+              color: 'white',
+              fontWeight: 'bold',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+            }}>{countA} ({percentA}%)</span>
           </div>
         </div>
       </div>
 
+      {/* Group B Bar */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
-          Group B:
+        <div style={{
+          width: '80px',
+          textAlign: 'right',
+          paddingRight: '15px',
+          fontWeight: 'bold',
+          fontSize: '16px'
+        }}>
+          B
         </div>
         <div style={{ flex: 1 }}>
           <div style={{
             height: `${barHeight}px`,
             width: `${percentB}%`,
             backgroundColor: '#FFA800',
-            borderRadius: '4px',
+            borderRadius: '6px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'width 0.5s ease'
           }}>
-            <span style={{ color: 'white', fontWeight: 'bold' }}>{countB} ({percentB}%)</span>
+            <span style={{
+              color: 'white',
+              fontWeight: 'bold',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+            }}>{countB} ({percentB}%)</span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// Calculate run lengths
-const calculateRunLengths = (sequence) => {
-  const runLengths = [];
-  let currentRun = 1;
-
-  for (let i = 1; i < sequence.length; i++) {
-    if (sequence[i] === sequence[i - 1]) {
-      currentRun++;
-    } else {
-      runLengths.push({
-        length: currentRun,
-        type: sequence[i - 1]
-      });
-      currentRun = 1;
-    }
-  }
-
-  // Add the last run
-  if (sequence.length > 0) {
-    runLengths.push({
-      length: currentRun,
-      type: sequence[sequence.length - 1]
-    });
-  }
-
-  // Count runs of each length by type
-  const typeA = Array(10).fill(0);
-  const typeB = Array(10).fill(0);
-
-  runLengths.forEach(run => {
-    const index = Math.min(run.length - 1, 9); // Cap at 10+
-    if (run.type === 'A') {
-      typeA[index]++;
-    } else {
-      typeB[index]++;
-    }
-  });
-
-  return { typeA, typeB, runLengths };
-};
-
-// Run Length Visualizer Component
-const RunLengthVisualizer = ({ sequence }) => {
-  const { typeA, typeB } = calculateRunLengths(sequence);
-
-  // Create x-axis labels
-  const xLabels = Array.from({ length: 9 }, (_, i) => (i + 1).toString());
-  xLabels.push('10+');
-
-  const maxCount = Math.max(...[...typeA, ...typeB]);
-  const barHeight = 15;
-  const barSpacing = 5;
-
-  return (
-    <div style={{
-      backgroundColor: '#f9f9f9',
-      padding: '20px',
-      borderRadius: '8px',
-      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
-      marginBottom: '20px'
-    }}>
-      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Run Length Distribution</h4>
-
-      <div style={{ display: 'flex', marginBottom: '10px' }}>
-        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
-          Group A:
-        </div>
-        <div style={{ flex: 1 }}>
-          {typeA.map((count, i) => (
-            <div key={`a-${i}`} style={{ display: 'flex', marginBottom: barSpacing, alignItems: 'center' }}>
-              <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
-                {xLabels[i]}
-              </div>
-              <div
-                style={{
-                  height: `${barHeight}px`,
-                  width: `${(count / maxCount) * 100}%`,
-                  backgroundColor: '#39E1F8',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 8px',
-                  borderRadius: '3px'
-                }}
-              >
-                {count > 0 && <span style={{ color: 'white', fontSize: '12px' }}>{count}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex' }}>
-        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
-          Group B:
-        </div>
-        <div style={{ flex: 1 }}>
-          {typeB.map((count, i) => (
-            <div key={`b-${i}`} style={{ display: 'flex', marginBottom: barSpacing, alignItems: 'center' }}>
-              <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
-                {xLabels[i]}
-              </div>
-              <div
-                style={{
-                  height: `${barHeight}px`,
-                  width: `${(count / maxCount) * 100}%`,
-                  backgroundColor: '#FFA800',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 8px',
-                  borderRadius: '3px'
-                }}
-              >
-                {count > 0 && <span style={{ color: 'white', fontSize: '12px' }}>{count}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ fontSize: '12px', color: '#666', marginTop: '15px', textAlign: 'center' }}>
-        Shows how many times consecutive sequences of each length appear
       </div>
     </div>
   );
@@ -590,7 +445,7 @@ export default function Page() {
         <div style={tabContentStyle}>
           {/* Sequence visualization and analysis */}
           <div>
-            <SequenceVisualizer sequence={sequences[activeTab]} />
+            <BarChartVisualizer sequence={sequences[activeTab]} />
           </div>
         </div>
       </div>
