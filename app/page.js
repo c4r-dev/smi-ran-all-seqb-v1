@@ -569,8 +569,6 @@ export default function Page() {
         True effect size: .20
       </h2>
 
-
-
       {/* Tabs for different allocation methods */}
       <div style={{ maxWidth: "900px", margin: "30px auto" }}>
         <div style={{ display: "flex", marginBottom: "-1px" }}>
@@ -590,7 +588,6 @@ export default function Page() {
         </div>
 
         <div style={tabContentStyle}>
-
           {/* Sequence visualization and analysis */}
           <div>
             <SequenceVisualizer sequence={sequences[activeTab]} />
