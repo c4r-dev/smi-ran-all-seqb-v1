@@ -113,7 +113,7 @@ const calculatePValue = (type) => {
 };
 
 // Bar Chart Sequence Visualizer
-const BarChartVisualizer = ({ sequence }) => {
+const BarChartVisualizer = ({ sequence, title }) => {
   // Calculate counts for A and B
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
@@ -124,36 +124,39 @@ const BarChartVisualizer = ({ sequence }) => {
   const percentB = (countB / total * 100).toFixed(1);
 
   // Bar styling
-  const barWidth = 120;
-  const maxBarHeight = 200; // pixels
+  const barWidth = 80;
+  const maxBarHeight = 160; // pixels
   const barHeightA = Math.max((percentA / 100) * maxBarHeight, 30); // Min height 30px
   const barHeightB = Math.max((percentB / 100) * maxBarHeight, 30); // Min height 30px
 
   return (
     <div style={{
       backgroundColor: '#f9f9f9',
-      padding: '25px',
+      padding: '20px',
       borderRadius: '8px',
       boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
       fontFamily: 'monospace',
-      marginBottom: '20px'
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>
-        Sequence Distribution
+      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>
+        {title}
       </h4>
 
       <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-end',
-        height: `${maxBarHeight + 50}px`
+        height: `${maxBarHeight + 50}px`,
+        flexGrow: 1
       }}>
         {/* Group A Bar */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginRight: '40px'
+          marginRight: '30px'
         }}>
           <div style={{
             width: `${barWidth}px`,
@@ -168,13 +171,14 @@ const BarChartVisualizer = ({ sequence }) => {
             <span style={{
               color: 'white',
               fontWeight: 'bold',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+              textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+              fontSize: '14px'
             }}>{countA} ({percentA}%)</span>
           </div>
           <div style={{
             marginTop: '10px',
             fontWeight: 'bold',
-            fontSize: '16px'
+            fontSize: '14px'
           }}>
             A
           </div>
@@ -199,13 +203,14 @@ const BarChartVisualizer = ({ sequence }) => {
             <span style={{
               color: 'white',
               fontWeight: 'bold',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+              textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+              fontSize: '14px'
             }}>{countB} ({percentB}%)</span>
           </div>
           <div style={{
             marginTop: '10px',
             fontWeight: 'bold',
-            fontSize: '16px'
+            fontSize: '14px'
           }}>
             B
           </div>
@@ -218,7 +223,6 @@ const BarChartVisualizer = ({ sequence }) => {
 export default function Page() {
   const [sequences, setSequences] = useState(null);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState("systematic");
   const [allGenerations, setAllGenerations] = useState([]);
 
   useEffect(() => {
@@ -235,21 +239,21 @@ export default function Page() {
     const newStats = {
       systematic: {
         effectSize: calculateEffectSize(newSequences.systematic),
-        pValue: calculatePValue(newSequences.systematic, 'systematic'),
+        pValue: calculatePValue('systematic'),
         longestRun: getLongestRun(newSequences.systematic),
         countA: newSequences.systematic.filter(item => item === 'A').length,
         countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
         effectSize: calculateEffectSize(newSequences.manual),
-        pValue: calculatePValue(newSequences.manual, 'manual'),
+        pValue: calculatePValue('manual'),
         longestRun: getLongestRun(newSequences.manual),
         countA: newSequences.manual.filter(item => item === 'A').length,
         countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
         effectSize: calculateEffectSize(newSequences.random),
-        pValue: calculatePValue(newSequences.random, 'random'),
+        pValue: calculatePValue('random'),
         longestRun: getLongestRun(newSequences.random),
         countA: newSequences.random.filter(item => item === 'A').length,
         countB: newSequences.random.filter(item => item === 'B').length
@@ -297,21 +301,21 @@ export default function Page() {
     const newStats = {
       systematic: {
         effectSize: calculateEffectSize(newSequences.systematic),
-        pValue: calculatePValue(newSequences.systematic, 'systematic'),
+        pValue: calculatePValue('systematic'),
         longestRun: getLongestRun(newSequences.systematic),
         countA: newSequences.systematic.filter(item => item === 'A').length,
         countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
         effectSize: calculateEffectSize(newSequences.manual),
-        pValue: calculatePValue(newSequences.manual, 'manual'),
+        pValue: calculatePValue('manual'),
         longestRun: getLongestRun(newSequences.manual),
         countA: newSequences.manual.filter(item => item === 'A').length,
         countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
         effectSize: calculateEffectSize(newSequences.random),
-        pValue: calculatePValue(newSequences.random, 'random'),
+        pValue: calculatePValue('random'),
         longestRun: getLongestRun(newSequences.random),
         countA: newSequences.random.filter(item => item === 'A').length,
         countB: newSequences.random.filter(item => item === 'B').length
@@ -354,41 +358,6 @@ export default function Page() {
     });
   };
 
-  // Styles for tabs
-  const tabStyle = {
-    padding: "10px 20px",
-    cursor: "pointer",
-    borderTop: "1px solid #ddd",
-    borderRight: "1px solid #ddd",
-    borderBottom: "1px solid #ddd",
-    borderLeft: "1px solid #ddd",
-    borderRadius: "4px 4px 0 0",
-    backgroundColor: "#f5f5f5",
-    marginRight: "5px",
-    fontWeight: "normal",
-    transition: "all 0.3s ease"
-  };
-
-  const activeTabStyle = {
-    ...tabStyle,
-    backgroundColor: "#6F00FF",
-    color: "white",
-    fontWeight: "bold",
-    borderTop: "1px solid #6F00FF",
-    borderRight: "1px solid #6F00FF",
-    borderBottom: "1px solid #6F00FF",
-    borderLeft: "1px solid #6F00FF"
-  };
-
-  // Tab content container style
-  const tabContentStyle = {
-    border: "1px solid #ddd",
-    borderRadius: "0 4px 4px 4px",
-    padding: "20px",
-    backgroundColor: "white",
-    boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)"
-  };
-
   return (
     <div>
       <h2 className="responsive-text">
@@ -397,29 +366,58 @@ export default function Page() {
         True effect size: .20
       </h2>
 
-      {/* Tabs for different allocation methods */}
-      <div style={{ maxWidth: "900px", margin: "30px auto" }}>
-        <div style={{ display: "flex", marginBottom: "-1px" }}>
-          {["systematic", "manual", "random"].map((key) => (
-            <div
-              key={key}
-              onClick={() => setActiveTab(key)}
-              style={activeTab === key ? activeTabStyle : tabStyle}
-            >
-              {key === "systematic"
-                ? "Alternating Allocation"
-                : key === "manual"
-                  ? "Manual Allocation"
-                  : "Randomized Allocation"}
-            </div>
-          ))}
+      {/* All three bar charts displayed horizontally */}
+      <div style={{ 
+        maxWidth: "1200px", 
+        margin: "30px auto", 
+        display: "flex", 
+        flexWrap: "wrap", 
+        justifyContent: "center", 
+        gap: "20px" 
+      }}>
+        {/* Box for Alternating Allocation */}
+        <div style={{ 
+          flex: "1 1 300px", 
+          minWidth: "250px", 
+          backgroundColor: "white",
+          borderRadius: "8px",
+          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
+          overflow: "hidden"
+        }}>
+          <BarChartVisualizer 
+            sequence={sequences.systematic} 
+            title="Alternating Allocation" 
+          />
         </div>
-
-        <div style={tabContentStyle}>
-          {/* Sequence visualization and analysis */}
-          <div>
-            <BarChartVisualizer sequence={sequences[activeTab]} />
-          </div>
+        
+        {/* Box for Manual Allocation */}
+        <div style={{ 
+          flex: "1 1 300px", 
+          minWidth: "250px", 
+          backgroundColor: "white",
+          borderRadius: "8px",
+          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
+          overflow: "hidden"
+        }}>
+          <BarChartVisualizer 
+            sequence={sequences.manual} 
+            title="Manual Allocation" 
+          />
+        </div>
+        
+        {/* Box for Randomized Allocation */}
+        <div style={{ 
+          flex: "1 1 300px", 
+          minWidth: "250px", 
+          backgroundColor: "white",
+          borderRadius: "8px",
+          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
+          overflow: "hidden"
+        }}>
+          <BarChartVisualizer 
+            sequence={sequences.random} 
+            title="Randomized Allocation" 
+          />
         </div>
       </div>
 
@@ -504,43 +502,32 @@ export default function Page() {
                           <td
                             style={{
                               padding: "10px",
-                              borderLeft: "2px solid #eee",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              borderLeft: "2px solid #eee"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("systematic")}
                           >
                             {methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("systematic")}
                           >
                             {methodMap.systematic.stats.effectSize}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("systematic")}
                           >
                             {methodMap.systematic.stats.pValue}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit",
-                              cursor: "pointer"
+                              color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("systematic")}
                           >
                             {methodMap.systematic.stats.longestRun}
                           </td>
@@ -553,43 +540,32 @@ export default function Page() {
                           <td
                             style={{
                               padding: "10px",
-                              borderLeft: "2px solid #eee",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              borderLeft: "2px solid #eee"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("manual")}
                           >
                             {methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("manual")}
                           >
                             {methodMap.manual.stats.effectSize}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("manual")}
                           >
                             {methodMap.manual.stats.pValue}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit",
-                              cursor: "pointer"
+                              color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("manual")}
                           >
                             {methodMap.manual.stats.longestRun}
                           </td>
@@ -602,43 +578,32 @@ export default function Page() {
                           <td
                             style={{
                               padding: "10px",
-                              borderLeft: "2px solid #eee",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              borderLeft: "2px solid #eee"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("random")}
                           >
                             {methodMap.random.stats.countA}/{methodMap.random.stats.countB}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("random")}
                           >
                             {methodMap.random.stats.effectSize}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                              cursor: isCurrentGen ? "pointer" : "default",
-                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                              color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("random")}
                           >
                             {methodMap.random.stats.pValue}
                           </td>
                           <td
                             style={{
                               padding: "10px",
-                              color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit",
-                              cursor: "pointer"
+                              color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit"
                             }}
-                            onClick={() => isCurrentGen && setActiveTab("random")}
                           >
                             {methodMap.random.stats.longestRun}
                           </td>
@@ -655,7 +620,6 @@ export default function Page() {
       <button onClick={regenerateSequences} className="regenerate-button">
         Regenerate sequences
       </button>
-
     </div>
-  )
+  );
 };
