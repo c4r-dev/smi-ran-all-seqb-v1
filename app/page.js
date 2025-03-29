@@ -670,18 +670,6 @@ export default function Page() {
                 <RunLengthVisualizer sequence={sequences[activeTab]} />
               </div>
             </div>
-            
-            {/* Method characteristics */}
-            <div style={{ marginTop: "30px", padding: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px", boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)" }}>
-              <h4 style={{ marginBottom: "10px" }}>Method Characteristics</h4>
-              <p>
-                {activeTab === "systematic" ? 
-                  "Alternating allocation produces perfectly balanced groups but is highly predictable, creating a completely deterministic pattern that can be easily identified and potentially gamed. This method eliminates selection bias but creates allocation bias." : 
-                activeTab === "manual" ? 
-                  "Manual allocation attempts to maintain balance while introducing some randomness. This approach tries to limit runs and create a more random-appearing sequence, but still contains patterns that can be detected with analysis." :
-                  "True randomization provides the best protection against bias and prediction. Although it may produce temporary imbalances or runs, these are statistical artifacts rather than design flaws. Random allocation is the gold standard for unbiased group assignment."}
-              </p>
-            </div>
           </div>
         </div>
       </div>
