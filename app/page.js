@@ -113,7 +113,7 @@ const calculatePValue = (type) => {
 };
 
 // Bar Chart Sequence Visualizer
-const BarChartVisualizer = ({ sequence, title }) => {
+const BarChartVisualizer = ({ sequence, title, stats }) => {
   // Calculate counts for A and B
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
@@ -135,7 +135,6 @@ const BarChartVisualizer = ({ sequence, title }) => {
       padding: '20px',
       borderRadius: '8px',
       boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
-      fontFamily: 'monospace',
       height: '100%',
       display: 'flex',
       flexDirection: 'column'
@@ -146,73 +145,175 @@ const BarChartVisualizer = ({ sequence, title }) => {
 
       <div style={{
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        height: `${maxBarHeight + 50}px`,
+        justifyContent: 'space-between',
+        alignItems: 'center',
         flexGrow: 1
       }}>
-        {/* Group A Bar */}
+        {/* Left side: Bar Chart */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginRight: '30px'
         }}>
           <div style={{
-            width: `${barWidth}px`,
-            height: `${barHeightA}px`,
-            backgroundColor: '#39E1F8',
-            borderRadius: '6px 6px 0 0',
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            transition: 'height 0.5s ease'
+            alignItems: 'flex-end',
+            height: `${maxBarHeight + 30}px`,
           }}>
-            <span style={{
-              color: 'white',
-              fontWeight: 'bold',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-              fontSize: '14px'
-            }}>{countA} ({percentA}%)</span>
+            {/* Group A Bar */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginRight: '20px'
+            }}>
+              <div style={{
+                width: `${barWidth}px`,
+                height: `${barHeightA}px`,
+                backgroundColor: '#39E1F8',
+                borderRadius: '6px 6px 0 0',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transition: 'height 0.5s ease'
+              }}>
+                <span style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                  fontSize: '14px'
+                }}>{countA}</span>
+              </div>
+            </div>
+
+            {/* Group B Bar */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                width: `${barWidth}px`,
+                height: `${barHeightB}px`,
+                backgroundColor: '#FFA800',
+                borderRadius: '6px 6px 0 0',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transition: 'height 0.5s ease'
+              }}>
+                <span style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
+                  fontSize: '14px'
+                }}>{countB}</span>
+              </div>
+            </div>
           </div>
+          
+          {/* X-axis labels */}
           <div style={{
-            marginTop: '10px',
-            fontWeight: 'bold',
-            fontSize: '14px'
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-around',
+            marginTop: '5px'
           }}>
-            A
+            <div style={{
+              fontWeight: 'bold',
+              fontSize: '16px',
+              width: `${barWidth}px`,
+              textAlign: 'center'
+            }}>
+              A
+            </div>
+            <div style={{
+              fontWeight: 'bold',
+              fontSize: '16px',
+              width: `${barWidth}px`,
+              textAlign: 'center'
+            }}>
+              B
+            </div>
+          </div>
+          
+          {/* Percentages */}
+          <div style={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-around',
+            marginTop: '5px'
+          }}>
+            <div style={{
+              fontSize: '14px',
+              width: `${barWidth}px`,
+              textAlign: 'center'
+            }}>
+              {percentA}%
+            </div>
+            <div style={{
+              fontSize: '14px',
+              width: `${barWidth}px`,
+              textAlign: 'center'
+            }}>
+              {percentB}%
+            </div>
           </div>
         </div>
 
-        {/* Group B Bar */}
+        {/* Right side: Statistics */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center'
+          padding: '10px',
+          backgroundColor: 'white',
+          borderRadius: '6px',
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+          marginLeft: '15px',
+          minWidth: '120px'
         }}>
           <div style={{
-            width: `${barWidth}px`,
-            height: `${barHeightB}px`,
-            backgroundColor: '#FFA800',
-            borderRadius: '6px 6px 0 0',
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            transition: 'height 0.5s ease'
+            flexDirection: 'column',
+            marginBottom: '15px'
           }}>
-            <span style={{
-              color: 'white',
-              fontWeight: 'bold',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-              fontSize: '14px'
-            }}>{countB} ({percentB}%)</span>
+            <span style={{ fontSize: '12px', color: '#666' }}>Longest Run:</span>
+            <span style={{ 
+              fontWeight: 'bold', 
+              fontSize: '16px',
+              color: stats.longestRun > 5 ? '#DC143C' : stats.longestRun < 3 ? '#228B22' : 'inherit'
+            }}>
+              {stats.longestRun}
+            </span>
           </div>
+          
           <div style={{
-            marginTop: '10px',
-            fontWeight: 'bold',
-            fontSize: '14px'
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: '15px'
           }}>
-            B
+            <span style={{ fontSize: '12px', color: '#666' }}>Effect Size:</span>
+            <span style={{ 
+              fontWeight: 'bold', 
+              fontSize: '16px',
+              color: stats.effectSize > 0.15 ? '#228B22' : stats.effectSize === 0 ? '#DC143C' : 'inherit'
+            }}>
+              {stats.effectSize}
+            </span>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <span style={{ fontSize: '12px', color: '#666' }}>p-value:</span>
+            <span style={{ 
+              fontWeight: 'bold', 
+              fontSize: '16px',
+              color: stats.pValue < 0.05 ? '#228B22' : stats.pValue > 0.5 ? '#DC143C' : 'inherit'
+            }}>
+              {stats.pValue}
+            </span>
           </div>
         </div>
       </div>
@@ -377,8 +478,8 @@ export default function Page() {
       }}>
         {/* Box for Alternating Allocation */}
         <div style={{ 
-          flex: "1 1 300px", 
-          minWidth: "250px", 
+          flex: "1 1 350px", 
+          minWidth: "320px", 
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
@@ -387,13 +488,14 @@ export default function Page() {
           <BarChartVisualizer 
             sequence={sequences.systematic} 
             title="Alternating Allocation" 
+            stats={stats.systematic}
           />
         </div>
         
         {/* Box for Manual Allocation */}
         <div style={{ 
-          flex: "1 1 300px", 
-          minWidth: "250px", 
+          flex: "1 1 350px", 
+          minWidth: "320px", 
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
@@ -402,13 +504,14 @@ export default function Page() {
           <BarChartVisualizer 
             sequence={sequences.manual} 
             title="Manual Allocation" 
+            stats={stats.manual}
           />
         </div>
         
         {/* Box for Randomized Allocation */}
         <div style={{ 
-          flex: "1 1 300px", 
-          minWidth: "250px", 
+          flex: "1 1 350px", 
+          minWidth: "320px", 
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
@@ -417,6 +520,7 @@ export default function Page() {
           <BarChartVisualizer 
             sequence={sequences.random} 
             title="Randomized Allocation" 
+            stats={stats.random}
           />
         </div>
       </div>
