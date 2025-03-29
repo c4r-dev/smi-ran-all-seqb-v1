@@ -372,6 +372,7 @@ export default function Page() {
   const [sequences, setSequences] = useState(null);
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState("systematic");
+  const [allGenerations, setAllGenerations] = useState([]);
 
   useEffect(() => {
     // Generate sequences only after hydration
@@ -409,6 +410,27 @@ export default function Page() {
     };
     
     setStats(newStats);
+    
+    // Initialize the first generation
+    const firstGeneration = [
+      {
+        id: 1,
+        method: "systematic",
+        stats: newStats.systematic
+      },
+      {
+        id: 1,
+        method: "manual",
+        stats: newStats.manual
+      },
+      {
+        id: 1,
+        method: "random",
+        stats: newStats.random
+      }
+    ];
+    
+    setAllGenerations(firstGeneration);
   }, []);
 
   if (!sequences || !stats) {
@@ -450,6 +472,39 @@ export default function Page() {
     };
     
     setStats(newStats);
+    
+    // Get the latest generation number
+    const latestGen = Math.max(...allGenerations.map(item => item.id), 0);
+    const newGenNumber = latestGen + 1;
+    
+    // Add new generation data to history
+    const newGeneration = [
+      {
+        id: newGenNumber,
+        method: "systematic",
+        stats: newStats.systematic
+      },
+      {
+        id: newGenNumber,
+        method: "manual",
+        stats: newStats.manual
+      },
+      {
+        id: newGenNumber,
+        method: "random",
+        stats: newStats.random
+      }
+    ];
+    
+    // Update the generations history (limit to last 5 generations to avoid clutter)
+    setAllGenerations(prevGens => {
+      const combined = [...prevGens, ...newGeneration];
+      // Sort by generation id (descending) and method
+      return combined.sort((a, b) => {
+        if (a.id !== b.id) return b.id - a.id;
+        return a.method.localeCompare(b.method);
+      }).slice(0, 15); // Keep last 15 rows (5 generations x 3 methods)
+    });
   };
 
   // Styles for tabs
@@ -515,7 +570,7 @@ export default function Page() {
       </h2>
       
       {/* Stats summary table */}
-      <div style={{ maxWidth: "800px", margin: "30px auto" }}>
+      <div style={{ maxWidth: "900px", margin: "30px auto" }}>
         <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Comparison of Allocation Methods</h3>
         <table style={{ 
           width: "100%", 
@@ -528,55 +583,77 @@ export default function Page() {
           <thead>
             <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
               <th style={{ padding: "12px 15px" }}>Allocation Method</th>
+              <th style={{ padding: "12px 15px" }}>Group A</th>
+              <th style={{ padding: "12px 15px" }}>Group B</th>
               <th style={{ padding: "12px 15px" }}>Effect Size</th>
               <th style={{ padding: "12px 15px" }}>p-value</th>
               <th style={{ padding: "12px 15px" }}>Longest Run</th>
+              <th style={{ padding: "12px 15px" }}>Generation</th>
             </tr>
           </thead>
           <tbody>
-            {Object.entries(stats).map(([key, value], index) => (
-              <tr 
-                key={key} 
-                style={{ 
-                  backgroundColor: index % 2 === 0 ? "#f9f6ff" : "white",
-                  transition: "background-color 0.2s ease",
-                  cursor: "pointer"
-                }}
-                onClick={() => setActiveTab(key)}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0e6ff"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#f9f6ff" : "white"}
-              >
-                <td style={{ padding: "12px 15px", fontWeight: "bold" }}>
-                  {key === "systematic"
-                    ? "Alternating Allocation"
-                    : key === "manual"
-                      ? "Manual Allocation"
-                      : "Randomized Allocation"}
-                </td>
-                <td style={{ 
-                  padding: "12px 15px",
-                  color: value.effectSize > 0.15 ? "#228B22" : value.effectSize === 0 ? "#DC143C" : "inherit"
-                }}>
-                  {value.effectSize}
-                </td>
-                <td style={{ 
-                  padding: "12px 15px",
-                  color: value.pValue < 0.05 ? "#228B22" : value.pValue > 0.5 ? "#DC143C" : "inherit"
-                }}>
-                  {value.pValue}
-                </td>
-                <td style={{ 
-                  padding: "12px 15px",
-                  color: value.longestRun > 5 ? "#DC143C" : value.longestRun < 3 ? "#228B22" : "inherit"
-                }}>
-                  {value.longestRun}
-                </td>
-              </tr>
-            ))}
+            {allGenerations.map((gen, index) => {
+              const isCurrentGen = gen.id === Math.max(...allGenerations.map(g => g.id)) && 
+                                  gen.method === activeTab;
+              return (
+                <tr 
+                  key={`${gen.method}-${gen.id}`} 
+                  style={{ 
+                    backgroundColor: isCurrentGen ? "#e0d0ff" : index % 2 === 0 ? "#f9f6ff" : "white",
+                    transition: "background-color 0.2s ease",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => {
+                    // Only set activeTab for the current generation
+                    if (gen.id === Math.max(...allGenerations.map(g => g.id))) {
+                      setActiveTab(gen.method);
+                    }
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0e6ff"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isCurrentGen ? "#e0d0ff" : index % 2 === 0 ? "#f9f6ff" : "white"}
+                >
+                  <td style={{ padding: "12px 15px", fontWeight: isCurrentGen ? "bold" : "normal" }}>
+                    {gen.method === "systematic"
+                      ? "Alternating Allocation"
+                      : gen.method === "manual"
+                        ? "Manual Allocation"
+                        : "Randomized Allocation"}
+                  </td>
+                  <td style={{ padding: "12px 15px" }}>
+                    {gen.stats.countA} ({formatPercent(gen.stats.countA / (gen.stats.countA + gen.stats.countB))})
+                  </td>
+                  <td style={{ padding: "12px 15px" }}>
+                    {gen.stats.countB} ({formatPercent(gen.stats.countB / (gen.stats.countA + gen.stats.countB))})
+                  </td>
+                  <td style={{ 
+                    padding: "12px 15px",
+                    color: gen.stats.effectSize > 0.15 ? "#228B22" : gen.stats.effectSize === 0 ? "#DC143C" : "inherit"
+                  }}>
+                    {gen.stats.effectSize}
+                  </td>
+                  <td style={{ 
+                    padding: "12px 15px",
+                    color: gen.stats.pValue < 0.05 ? "#228B22" : gen.stats.pValue > 0.5 ? "#DC143C" : "inherit"
+                  }}>
+                    {gen.stats.pValue}
+                  </td>
+                  <td style={{ 
+                    padding: "12px 15px",
+                    color: gen.stats.longestRun > 5 ? "#DC143C" : gen.stats.longestRun < 3 ? "#228B22" : "inherit"
+                  }}>
+                    {gen.stats.longestRun}
+                  </td>
+                  <td style={{ padding: "12px 15px" }}>
+                    {gen.id}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         <div style={{ fontSize: "14px", color: "#666", marginTop: "10px", textAlign: "center" }}>
           <p>Effect size closer to 0.20 is better. P-value &lt; 0.05 indicates statistical significance.</p>
+          <p>Click on rows from the current generation to view detailed visualizations.</p>
         </div>
       </div>
       
@@ -679,5 +756,4 @@ export default function Page() {
       </button>
 
     </div>
-  );
-}
+  )};
