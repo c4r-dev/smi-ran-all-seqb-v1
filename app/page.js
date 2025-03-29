@@ -525,205 +525,233 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Stats summary table */}
-      <div style={{ maxWidth: "1200px", margin: "30px auto", overflowX: "auto" }}>
-        <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Comparison of Allocation Methods</h3>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          textAlign: "center",
-          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
-          borderRadius: "8px",
-          overflow: "hidden"
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
-              <th style={{ padding: "12px 15px" }}>Gen</th>
-              {/* Alternating Allocation columns */}
-              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Alternating Allocation</th>
-              {/* Manual Allocation columns */}
-              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Manual Allocation</th>
-              {/* Random Allocation columns */}
-              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Randomized Allocation</th>
-            </tr>
-            <tr style={{ backgroundColor: "#9966FF", color: "white" }}>
-              <th style={{ padding: "8px 10px" }}></th>
-              {/* Alternating Allocation subheaders */}
-              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-              <th style={{ padding: "8px 10px" }}>Effect</th>
-              <th style={{ padding: "8px 10px" }}>p-value</th>
-              <th style={{ padding: "8px 10px" }}>Run</th>
-              {/* Manual Allocation subheaders */}
-              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-              <th style={{ padding: "8px 10px" }}>Effect</th>
-              <th style={{ padding: "8px 10px" }}>p-value</th>
-              <th style={{ padding: "8px 10px" }}>Run</th>
-              {/* Random Allocation subheaders */}
-              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-              <th style={{ padding: "8px 10px" }}>Effect</th>
-              <th style={{ padding: "8px 10px" }}>p-value</th>
-              <th style={{ padding: "8px 10px" }}>Run</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              // Get unique generation IDs and sort them in descending order
-              [...new Set(allGenerations.map(gen => gen.id))]
-                .sort((a, b) => b - a)
-                .map(genId => {
-                  // Get all entries for this generation
-                  const genEntries = allGenerations.filter(gen => gen.id === genId);
-
-                  // Create a map of method to entry for easy access
-                  const methodMap = {};
-                  genEntries.forEach(entry => {
-                    methodMap[entry.method] = entry;
-                  });
-
-                  // Check if this is the current active generation
-                  const isCurrentGen = genId === Math.max(...allGenerations.map(g => g.id));
-
-                  return (
-                    <tr
-                      key={`generation-${genId}`}
-                      style={{
-                        backgroundColor: isCurrentGen ? "#f9f6ff" : "white",
-                        transition: "background-color 0.2s ease"
-                      }}
-                    >
-                      {/* Generation number */}
-                      <td style={{
-                        padding: "12px",
-                        fontWeight: "bold",
-                        backgroundColor: "#f0f0f0"
-                      }}>
-                        {genId}
-                      </td>
-
-                      {/* Alternating Allocation */}
-                      {methodMap.systematic && (
-                        <>
-                          <td
-                            style={{
-                              padding: "10px",
-                              borderLeft: "2px solid #eee"
-                            }}
-                          >
-                            {methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.systematic.stats.effectSize}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.systematic.stats.pValue}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit"
-                            }}
-                          >
-                            {methodMap.systematic.stats.longestRun}
-                          </td>
-                        </>
-                      )}
-
-                      {/* Manual Allocation */}
-                      {methodMap.manual && (
-                        <>
-                          <td
-                            style={{
-                              padding: "10px",
-                              borderLeft: "2px solid #eee"
-                            }}
-                          >
-                            {methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.manual.stats.effectSize}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.manual.stats.pValue}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit"
-                            }}
-                          >
-                            {methodMap.manual.stats.longestRun}
-                          </td>
-                        </>
-                      )}
-
-                      {/* Random Allocation */}
-                      {methodMap.random && (
-                        <>
-                          <td
-                            style={{
-                              padding: "10px",
-                              borderLeft: "2px solid #eee"
-                            }}
-                          >
-                            {methodMap.random.stats.countA}/{methodMap.random.stats.countB}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.random.stats.effectSize}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                            }}
-                          >
-                            {methodMap.random.stats.pValue}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px",
-                              color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit"
-                            }}
-                          >
-                            {methodMap.random.stats.longestRun}
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  );
-                })
-            }
-          </tbody>
-        </table>
+      {/* NEW POSITION: Regenerate button placed between charts and table */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        margin: "30px auto 20px auto",
+        maxWidth: "1200px" 
+      }}>
+        <button onClick={regenerateSequences} className="regenerate-button">
+          Regenerate sequences
+        </button>
       </div>
 
-      <button onClick={regenerateSequences} className="regenerate-button">
-        Regenerate sequences
-      </button>
+      {/* Stats summary table - MODIFIED for better scrolling */}
+      <div style={{ 
+        maxWidth: "1200px", 
+        margin: "30px auto", 
+        boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
+        borderRadius: "8px",
+        backgroundColor: "white"
+      }}>
+        <h3 style={{ 
+          textAlign: "center", 
+          marginBottom: "15px", 
+          padding: "15px 15px 0 15px" 
+        }}>
+          Comparison of Allocation Methods
+        </h3>
+        
+        {/* Dedicated scrollable wrapper for the table */}
+        <div style={{ 
+          overflowX: "auto", 
+          width: "100%",
+          padding: "0 0 15px 0"
+        }}>
+          <table style={{
+            minWidth: "900px", // Ensures table has a minimum width to trigger scrolling
+            width: "100%",
+            borderCollapse: "collapse",
+            textAlign: "center"
+          }}>
+            <thead>
+              <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
+                <th style={{ padding: "12px 15px" }}>Gen</th>
+                {/* Alternating Allocation columns */}
+                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Alternating Allocation</th>
+                {/* Manual Allocation columns */}
+                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Manual Allocation</th>
+                {/* Random Allocation columns */}
+                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Randomized Allocation</th>
+              </tr>
+              <tr style={{ backgroundColor: "#9966FF", color: "white" }}>
+                <th style={{ padding: "8px 10px" }}></th>
+                {/* Alternating Allocation subheaders */}
+                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+                <th style={{ padding: "8px 10px" }}>Effect</th>
+                <th style={{ padding: "8px 10px" }}>p-value</th>
+                <th style={{ padding: "8px 10px" }}>Run</th>
+                {/* Manual Allocation subheaders */}
+                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+                <th style={{ padding: "8px 10px" }}>Effect</th>
+                <th style={{ padding: "8px 10px" }}>p-value</th>
+                <th style={{ padding: "8px 10px" }}>Run</th>
+                {/* Random Allocation subheaders */}
+                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+                <th style={{ padding: "8px 10px" }}>Effect</th>
+                <th style={{ padding: "8px 10px" }}>p-value</th>
+                <th style={{ padding: "8px 10px" }}>Run</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                // Get unique generation IDs and sort them in descending order
+                [...new Set(allGenerations.map(gen => gen.id))]
+                  .sort((a, b) => b - a)
+                  .map(genId => {
+                    // Get all entries for this generation
+                    const genEntries = allGenerations.filter(gen => gen.id === genId);
+
+                    // Create a map of method to entry for easy access
+                    const methodMap = {};
+                    genEntries.forEach(entry => {
+                      methodMap[entry.method] = entry;
+                    });
+
+                    // Check if this is the current active generation
+                    const isCurrentGen = genId === Math.max(...allGenerations.map(g => g.id));
+
+                    return (
+                      <tr
+                        key={`generation-${genId}`}
+                        style={{
+                          backgroundColor: isCurrentGen ? "#f9f6ff" : "white",
+                          transition: "background-color 0.2s ease"
+                        }}
+                      >
+                        {/* Generation number */}
+                        <td style={{
+                          padding: "12px",
+                          fontWeight: "bold",
+                          backgroundColor: "#f0f0f0"
+                        }}>
+                          {genId}
+                        </td>
+
+                        {/* Alternating Allocation */}
+                        {methodMap.systematic && (
+                          <>
+                            <td
+                              style={{
+                                padding: "10px",
+                                borderLeft: "2px solid #eee"
+                              }}
+                            >
+                              {methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.systematic.stats.effectSize}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.systematic.stats.pValue}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit"
+                              }}
+                            >
+                              {methodMap.systematic.stats.longestRun}
+                            </td>
+                          </>
+                        )}
+
+                        {/* Manual Allocation */}
+                        {methodMap.manual && (
+                          <>
+                            <td
+                              style={{
+                                padding: "10px",
+                                borderLeft: "2px solid #eee"
+                              }}
+                            >
+                              {methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.manual.stats.effectSize}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.manual.stats.pValue}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit"
+                              }}
+                            >
+                              {methodMap.manual.stats.longestRun}
+                            </td>
+                          </>
+                        )}
+
+                        {/* Random Allocation */}
+                        {methodMap.random && (
+                          <>
+                            <td
+                              style={{
+                                padding: "10px",
+                                borderLeft: "2px solid #eee"
+                              }}
+                            >
+                              {methodMap.random.stats.countA}/{methodMap.random.stats.countB}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.random.stats.effectSize}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit"
+                              }}
+                            >
+                              {methodMap.random.stats.pValue}
+                            </td>
+                            <td
+                              style={{
+                                padding: "10px",
+                                color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit"
+                              }}
+                            >
+                              {methodMap.random.stats.longestRun}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    );
+                  })
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Removed original bottom button since it's now positioned between charts and table */}
     </div>
   );
 };
