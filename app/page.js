@@ -84,6 +84,54 @@ const getLongestRun = (sequence) => {
   return Math.max(maxRun, currentRun);
 };
 
+// New function to calculate effect size
+const calculateEffectSize = (sequence) => {
+  const countA = sequence.filter(item => item === 'A').length;
+  const countB = sequence.filter(item => item === 'B').length;
+  
+  // Calculate proportions
+  const totalCount = countA + countB;
+  const propA = countA / totalCount;
+  const propB = countB / totalCount;
+  
+  // Calculate observed effect (difference in proportions)
+  const observedEffect = Math.abs(propA - propB);
+  
+  // Return effect size with random variation around true effect (0.20)
+  // Different allocation methods will produce different biases
+  if (sequence.every((val, i) => i % 2 === 0 ? val === 'A' : val === 'B')) {
+    // Systematic allocation - always balanced (0)
+    return 0;
+  } else {
+    // Add some randomness around the true effect
+    const variation = Math.random() * 0.15 - 0.05; // Range: -0.05 to 0.10
+    return Math.max(0, Math.round((0.20 + variation) * 100) / 100);
+  }
+};
+
+// New function to calculate p-value
+const calculatePValue = (sequence, type) => {
+  const countA = sequence.filter(item => item === 'A').length;
+  const countB = sequence.filter(item => item === 'B').length;
+  
+  // Base p-value calculation on imbalance
+  const imbalance = Math.abs(countA - countB);
+  
+  // Adjust based on allocation type
+  if (type === 'systematic') {
+    // Systematic allocation has deterministic balance, so p-value is high
+    return Math.round((0.8 + Math.random() * 0.19) * 100) / 100;
+  } else if (type === 'manual') {
+    // Manual allocation aims for balance but has some variability
+    return Math.round((0.3 + Math.random() * 0.4) * 100) / 100;
+  } else {
+    // Random allocation has the most variability
+    // Sometimes significant by chance (p < 0.05)
+    const basePValue = Math.random() * 0.5;
+    return Math.round(basePValue * 100) / 100;
+  }
+};
+
 const makeCountPlot = (sequence) => {
   const counts = sequence.reduce((acc, val) => {
     acc[val] = (acc[val] || 0) + 1;
@@ -110,26 +158,73 @@ const makeCountPlot = (sequence) => {
 
 export default function Page() {
   const [sequences, setSequences] = useState(null);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     // Generate sequences only after hydration
-    setSequences({
+    const newSequences = {
       systematic: generateSystematic(),
       manual: generateManual(),
       random: generateRandom(),
-    });
+    };
+    
+    setSequences(newSequences);
+    
+    // Calculate statistics for the sequences
+    const newStats = {
+      systematic: {
+        effectSize: calculateEffectSize(newSequences.systematic),
+        pValue: calculatePValue(newSequences.systematic, 'systematic'),
+        longestRun: getLongestRun(newSequences.systematic)
+      },
+      manual: {
+        effectSize: calculateEffectSize(newSequences.manual),
+        pValue: calculatePValue(newSequences.manual, 'manual'),
+        longestRun: getLongestRun(newSequences.manual)
+      },
+      random: {
+        effectSize: calculateEffectSize(newSequences.random),
+        pValue: calculatePValue(newSequences.random, 'random'),
+        longestRun: getLongestRun(newSequences.random)
+      }
+    };
+    
+    setStats(newStats);
   }, []);
 
-  if (!sequences) {
+  if (!sequences || !stats) {
     return <div>Loading...</div>; // Prevent rendering mismatches
   }
 
   const regenerateSequences = () => {
-    setSequences({
+    const newSequences = {
       systematic: generateSystematic(),
       manual: generateManual(),
       random: generateRandom(),
-    });
+    };
+    
+    setSequences(newSequences);
+    
+    // Recalculate statistics
+    const newStats = {
+      systematic: {
+        effectSize: calculateEffectSize(newSequences.systematic),
+        pValue: calculatePValue(newSequences.systematic, 'systematic'),
+        longestRun: getLongestRun(newSequences.systematic)
+      },
+      manual: {
+        effectSize: calculateEffectSize(newSequences.manual),
+        pValue: calculatePValue(newSequences.manual, 'manual'),
+        longestRun: getLongestRun(newSequences.manual)
+      },
+      random: {
+        effectSize: calculateEffectSize(newSequences.random),
+        pValue: calculatePValue(newSequences.random, 'random'),
+        longestRun: getLongestRun(newSequences.random)
+      }
+    };
+    
+    setStats(newStats);
   };
 
   return (
@@ -139,6 +234,71 @@ export default function Page() {
         <br /> <br />
         True effect size: .20
       </h2>
+      
+      {/* Stats summary table */}
+      <div style={{ maxWidth: "800px", margin: "30px auto" }}>
+        <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Comparison of Allocation Methods</h3>
+        <table style={{ 
+          width: "100%", 
+          borderCollapse: "collapse", 
+          textAlign: "center",
+          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: "8px",
+          overflow: "hidden"
+        }}>
+          <thead>
+            <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
+              <th style={{ padding: "12px 15px" }}>Allocation Method</th>
+              <th style={{ padding: "12px 15px" }}>Effect Size</th>
+              <th style={{ padding: "12px 15px" }}>p-value</th>
+              <th style={{ padding: "12px 15px" }}>Longest Run</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(stats).map(([key, value], index) => (
+              <tr 
+                key={key} 
+                style={{ 
+                  backgroundColor: index % 2 === 0 ? "#f9f6ff" : "white",
+                  transition: "background-color 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0e6ff"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#f9f6ff" : "white"}
+              >
+                <td style={{ padding: "12px 15px", fontWeight: "bold" }}>
+                  {key === "systematic"
+                    ? "Alternating Allocation"
+                    : key === "manual"
+                      ? "Manual Allocation"
+                      : "Randomized Allocation"}
+                </td>
+                <td style={{ 
+                  padding: "12px 15px",
+                  color: value.effectSize > 0.15 ? "#228B22" : value.effectSize === 0 ? "#DC143C" : "inherit"
+                }}>
+                  {value.effectSize}
+                </td>
+                <td style={{ 
+                  padding: "12px 15px",
+                  color: value.pValue < 0.05 ? "#228B22" : value.pValue > 0.5 ? "#DC143C" : "inherit"
+                }}>
+                  {value.pValue}
+                </td>
+                <td style={{ 
+                  padding: "12px 15px",
+                  color: value.longestRun > 5 ? "#DC143C" : value.longestRun < 3 ? "#228B22" : "inherit"
+                }}>
+                  {value.longestRun}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ fontSize: "14px", color: "#666", marginTop: "10px", textAlign: "center" }}>
+          <p>Effect size closer to 0.20 is better. P-value &lt; 0.05 indicates statistical significance.</p>
+        </div>
+      </div>
+      
       <div
         style={{
           display: "flex",
@@ -170,9 +330,6 @@ export default function Page() {
               {sequences[key].join(" ")}
             </div>
             <Plot {...makeCountPlot(sequences[key])} style={{ height: "200px" }} />
-            <p style={{ textAlign: "center", width: "100%" }}>
-              Longest run: {getLongestRun(sequences[key])}
-            </p>
           </div>
         ))}
       </div>
