@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 
 const generateSystematic = (n = 200) => {
   return Array.from({ length: n }, (_, i) => (i % 2 === 0 ? "A" : "B"));
@@ -84,17 +83,6 @@ const getLongestRun = (sequence) => {
 
 // Calculate effect size
 const calculateEffectSize = (sequence) => {
-  const countA = sequence.filter(item => item === 'A').length;
-  const countB = sequence.filter(item => item === 'B').length;
-
-  // Calculate proportions
-  const totalCount = countA + countB;
-  const propA = countA / totalCount;
-  const propB = countB / totalCount;
-
-  // Calculate observed effect (difference in proportions)
-  const observedEffect = Math.abs(propA - propB);
-
   // Return effect size with random variation around true effect (0.20)
   // Different allocation methods will produce different biases
   if (sequence.every((val, i) => i % 2 === 0 ? val === 'A' : val === 'B')) {
@@ -108,13 +96,7 @@ const calculateEffectSize = (sequence) => {
 };
 
 // Calculate p-value
-const calculatePValue = (sequence, type) => {
-  const countA = sequence.filter(item => item === 'A').length;
-  const countB = sequence.filter(item => item === 'B').length;
-
-  // Base p-value calculation on imbalance
-  const imbalance = Math.abs(countA - countB);
-
+const calculatePValue = (type) => {
   // Adjust based on allocation type
   if (type === 'systematic') {
     // Systematic allocation has deterministic balance, so p-value is high
@@ -405,25 +387,6 @@ export default function Page() {
     padding: "20px",
     backgroundColor: "white",
     boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)"
-  };
-
-  // Format percentage
-  const formatPercent = (value) => {
-    return `${(value * 100).toFixed(1)}%`;
-  };
-
-  // Card style for metrics
-  const metricCardStyle = {
-    padding: "15px",
-    borderRadius: "8px",
-    boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
-    margin: "10px",
-    flex: "1 1 calc(33% - 20px)",
-    minWidth: "150px",
-    textAlign: "center",
-    backgroundColor: "white",
-    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-    cursor: "default"
   };
 
   return (
