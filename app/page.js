@@ -2,13 +2,11 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
-
-const generateSystematic = (n = 300) => {
+const generateSystematic = (n = 200) => {
   return Array.from({ length: n }, (_, i) => (i % 2 === 0 ? "A" : "B"));
 };
 
-const generateManual = (n = 300) => {
+const generateManual = (n = 200) => {
   // Ensure n is even for easier distribution
   if (n % 2 !== 0) n = n + 1;
 
@@ -65,7 +63,7 @@ const generateManual = (n = 300) => {
   return result;
 };
 
-const generateRandom = (n = 300) => {
+const generateRandom = (n = 200) => {
   return Array.from({ length: n }, () => (Math.random() < 0.5 ? "A" : "B"));
 };
 
@@ -84,7 +82,7 @@ const getLongestRun = (sequence) => {
   return Math.max(maxRun, currentRun);
 };
 
-// New function to calculate effect size
+// Calculate effect size
 const calculateEffectSize = (sequence) => {
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
@@ -109,7 +107,7 @@ const calculateEffectSize = (sequence) => {
   }
 };
 
-// New function to calculate p-value
+// Calculate p-value
 const calculatePValue = (sequence, type) => {
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
@@ -132,33 +130,248 @@ const calculatePValue = (sequence, type) => {
   }
 };
 
-const makeCountPlot = (sequence) => {
+// Function to render sequence as colored blocks
+const SequenceVisualizer = ({ sequence }) => {
+  const chunkSize = 30; // Elements per row
+  const renderSquares = () => {
+    const rows = [];
+    
+    for (let i = 0; i < sequence.length; i += chunkSize) {
+      const chunk = sequence.slice(i, i + chunkSize);
+      const rowItems = chunk.map((item, index) => (
+        <div key={`${i}-${index}`} style={{
+          display: 'inline-block',
+          width: '18px',
+          height: '18px',
+          margin: '1px',
+          backgroundColor: item === 'A' ? '#39E1F8' : '#FFA800',
+          color: 'white',
+          fontSize: '12px',
+          textAlign: 'center',
+          lineHeight: '18px'
+        }}>
+          {item}
+        </div>
+      ));
+      
+      rows.push(
+        <div key={`row-${i}`} style={{ marginBottom: '2px' }}>
+          {rowItems}
+        </div>
+      );
+    }
+    
+    return rows;
+  };
+  
+  return (
+    <div style={{ 
+      backgroundColor: '#f9f9f9', 
+      padding: '15px', 
+      borderRadius: '8px',
+      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
+      fontFamily: 'monospace'
+    }}>
+      {renderSquares()}
+    </div>
+  );
+};
+
+// Group distribution visualizer component
+const GroupDistributionVisualizer = ({ sequence }) => {
   const counts = sequence.reduce((acc, val) => {
     acc[val] = (acc[val] || 0) + 1;
     return acc;
   }, {});
+  
+  const total = sequence.length;
+  const countA = counts["A"] || 0;
+  const countB = counts["B"] || 0;
+  const percentA = (countA / total * 100).toFixed(1);
+  const percentB = (countB / total * 100).toFixed(1);
+  
+  const barHeight = 40;
+  
+  return (
+    <div style={{ 
+      backgroundColor: '#f9f9f9', 
+      padding: '20px', 
+      borderRadius: '8px',
+      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Group Distribution</h4>
+      
+      <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
+        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
+          Group A:
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ 
+            height: `${barHeight}px`, 
+            width: `${percentA}%`,
+            backgroundColor: '#39E1F8',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ color: 'white', fontWeight: 'bold' }}>{countA} ({percentA}%)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
+          Group B:
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ 
+            height: `${barHeight}px`, 
+            width: `${percentB}%`,
+            backgroundColor: '#FFA800',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ color: 'white', fontWeight: 'bold' }}>{countB} ({percentB}%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-  return {
-    data: [
-      {
-        x: Object.keys(counts),
-        y: Object.values(counts),
-        type: "bar",
-        marker: { color: ["#39E1F8", "#FFA800"] },
-      },
-    ],
-    layout: {
-      showlegend: false,
-      yaxis: { title: "Count" },
-      xaxis: { title: "Group" },
-      margin: { t: 20 },
-    },
-  };
+// Calculate run lengths
+const calculateRunLengths = (sequence) => {
+  const runLengths = [];
+  let currentRun = 1;
+  
+  for (let i = 1; i < sequence.length; i++) {
+    if (sequence[i] === sequence[i - 1]) {
+      currentRun++;
+    } else {
+      runLengths.push({
+        length: currentRun,
+        type: sequence[i - 1]
+      });
+      currentRun = 1;
+    }
+  }
+  
+  // Add the last run
+  if (sequence.length > 0) {
+    runLengths.push({
+      length: currentRun,
+      type: sequence[sequence.length - 1]
+    });
+  }
+  
+  // Count runs of each length by type
+  const typeA = Array(10).fill(0);
+  const typeB = Array(10).fill(0);
+  
+  runLengths.forEach(run => {
+    const index = Math.min(run.length - 1, 9); // Cap at 10+
+    if (run.type === 'A') {
+      typeA[index]++;
+    } else {
+      typeB[index]++;
+    }
+  });
+  
+  return { typeA, typeB, runLengths };
+};
+
+// Run Length Visualizer Component
+const RunLengthVisualizer = ({ sequence }) => {
+  const { typeA, typeB } = calculateRunLengths(sequence);
+  
+  // Create x-axis labels
+  const xLabels = Array.from({ length: 9 }, (_, i) => (i + 1).toString());
+  xLabels.push('10+');
+  
+  const maxCount = Math.max(...[...typeA, ...typeB]);
+  const barHeight = 15;
+  const barSpacing = 5;
+  
+  return (
+    <div style={{ 
+      backgroundColor: '#f9f9f9', 
+      padding: '20px', 
+      borderRadius: '8px',
+      boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
+      marginBottom: '20px'
+    }}>
+      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Run Length Distribution</h4>
+      
+      <div style={{ display: 'flex', marginBottom: '10px' }}>
+        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
+          Group A:
+        </div>
+        <div style={{ flex: 1 }}>
+          {typeA.map((count, i) => (
+            <div key={`a-${i}`} style={{ display: 'flex', marginBottom: barSpacing, alignItems: 'center' }}>
+              <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
+                {xLabels[i]}
+              </div>
+              <div 
+                style={{ 
+                  height: `${barHeight}px`, 
+                  width: `${(count / maxCount) * 100}%`, 
+                  backgroundColor: '#39E1F8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 8px',
+                  borderRadius: '3px'
+                }}
+              >
+                {count > 0 && <span style={{ color: 'white', fontSize: '12px' }}>{count}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex' }}>
+        <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
+          Group B:
+        </div>
+        <div style={{ flex: 1 }}>
+          {typeB.map((count, i) => (
+            <div key={`b-${i}`} style={{ display: 'flex', marginBottom: barSpacing, alignItems: 'center' }}>
+              <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
+                {xLabels[i]}
+              </div>
+              <div 
+                style={{ 
+                  height: `${barHeight}px`, 
+                  width: `${(count / maxCount) * 100}%`, 
+                  backgroundColor: '#FFA800',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 8px',
+                  borderRadius: '3px'
+                }}
+              >
+                {count > 0 && <span style={{ color: 'white', fontSize: '12px' }}>{count}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ fontSize: '12px', color: '#666', marginTop: '15px', textAlign: 'center' }}>
+        Shows how many times consecutive sequences of each length appear
+      </div>
+    </div>
+  );
 };
 
 export default function Page() {
   const [sequences, setSequences] = useState(null);
   const [stats, setStats] = useState(null);
+  const [activeTab, setActiveTab] = useState("systematic");
 
   useEffect(() => {
     // Generate sequences only after hydration
@@ -175,17 +388,23 @@ export default function Page() {
       systematic: {
         effectSize: calculateEffectSize(newSequences.systematic),
         pValue: calculatePValue(newSequences.systematic, 'systematic'),
-        longestRun: getLongestRun(newSequences.systematic)
+        longestRun: getLongestRun(newSequences.systematic),
+        countA: newSequences.systematic.filter(item => item === 'A').length,
+        countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
         effectSize: calculateEffectSize(newSequences.manual),
         pValue: calculatePValue(newSequences.manual, 'manual'),
-        longestRun: getLongestRun(newSequences.manual)
+        longestRun: getLongestRun(newSequences.manual),
+        countA: newSequences.manual.filter(item => item === 'A').length,
+        countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
         effectSize: calculateEffectSize(newSequences.random),
         pValue: calculatePValue(newSequences.random, 'random'),
-        longestRun: getLongestRun(newSequences.random)
+        longestRun: getLongestRun(newSequences.random),
+        countA: newSequences.random.filter(item => item === 'A').length,
+        countB: newSequences.random.filter(item => item === 'B').length
       }
     };
     
@@ -210,27 +429,87 @@ export default function Page() {
       systematic: {
         effectSize: calculateEffectSize(newSequences.systematic),
         pValue: calculatePValue(newSequences.systematic, 'systematic'),
-        longestRun: getLongestRun(newSequences.systematic)
+        longestRun: getLongestRun(newSequences.systematic),
+        countA: newSequences.systematic.filter(item => item === 'A').length,
+        countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
         effectSize: calculateEffectSize(newSequences.manual),
         pValue: calculatePValue(newSequences.manual, 'manual'),
-        longestRun: getLongestRun(newSequences.manual)
+        longestRun: getLongestRun(newSequences.manual),
+        countA: newSequences.manual.filter(item => item === 'A').length,
+        countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
         effectSize: calculateEffectSize(newSequences.random),
         pValue: calculatePValue(newSequences.random, 'random'),
-        longestRun: getLongestRun(newSequences.random)
+        longestRun: getLongestRun(newSequences.random),
+        countA: newSequences.random.filter(item => item === 'A').length,
+        countB: newSequences.random.filter(item => item === 'B').length
       }
     };
     
     setStats(newStats);
   };
 
+  // Styles for tabs
+  const tabStyle = {
+    padding: "10px 20px",
+    cursor: "pointer",
+    borderTop: "1px solid #ddd",
+    borderRight: "1px solid #ddd",
+    borderBottom: "1px solid #ddd",
+    borderLeft: "1px solid #ddd",
+    borderRadius: "4px 4px 0 0",
+    backgroundColor: "#f5f5f5",
+    marginRight: "5px",
+    fontWeight: "normal",
+    transition: "all 0.3s ease"
+  };
+
+  const activeTabStyle = {
+    ...tabStyle,
+    backgroundColor: "#6F00FF",
+    color: "white",
+    fontWeight: "bold",
+    borderTop: "1px solid #6F00FF",
+    borderRight: "1px solid #6F00FF",
+    borderBottom: "1px solid #6F00FF",
+    borderLeft: "1px solid #6F00FF"
+  };
+
+  // Tab content container style
+  const tabContentStyle = {
+    border: "1px solid #ddd",
+    borderRadius: "0 4px 4px 4px",
+    padding: "20px",
+    backgroundColor: "white",
+    boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)"
+  };
+
+  // Format percentage
+  const formatPercent = (value) => {
+    return `${(value * 100).toFixed(1)}%`;
+  };
+
+  // Card style for metrics
+  const metricCardStyle = {
+    padding: "15px",
+    borderRadius: "8px",
+    boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
+    margin: "10px",
+    flex: "1 1 calc(33% - 20px)",
+    minWidth: "150px",
+    textAlign: "center",
+    backgroundColor: "white",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    cursor: "default"
+  };
+
   return (
     <div>
       <h2 className="responsive-text">
-        Now that we've identified the truly random sequence, let's compare how different allocation methods perform with larger sample sizes (n=300).
+        Now that we've identified the truly random sequence, let's compare how different allocation methods perform with larger sample sizes (n=200).
         <br /> <br />
         True effect size: .20
       </h2>
@@ -260,8 +539,10 @@ export default function Page() {
                 key={key} 
                 style={{ 
                   backgroundColor: index % 2 === 0 ? "#f9f6ff" : "white",
-                  transition: "background-color 0.2s ease"
+                  transition: "background-color 0.2s ease",
+                  cursor: "pointer"
                 }}
+                onClick={() => setActiveTab(key)}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0e6ff"}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#f9f6ff" : "white"}
               >
@@ -299,39 +580,110 @@ export default function Page() {
         </div>
       </div>
       
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: "20px",
-          marginTop: "20px",
-        }}
-      >
-        {["systematic", "manual", "random"].map((key) => (
-          <div
-            key={key}
-            style={{
-              flex: "1 1 300px",  /* Allows it to shrink but maintains width */
-              maxWidth: "400px",  /* Prevents it from stretching too much */
-              minWidth: "280px",  /* Ensures readability */
-              margin: "10px auto",
-            }}
-          >
-
-            <h3>
+      {/* Tabs for different allocation methods */}
+      <div style={{ maxWidth: "900px", margin: "30px auto" }}>
+        <div style={{ display: "flex", marginBottom: "-1px" }}>
+          {["systematic", "manual", "random"].map((key) => (
+            <div
+              key={key}
+              onClick={() => setActiveTab(key)}
+              style={activeTab === key ? activeTabStyle : tabStyle}
+            >
               {key === "systematic"
                 ? "Alternating Allocation"
                 : key === "manual"
                   ? "Manual Allocation"
                   : "Randomized Allocation"}
-            </h3>
-            <div style={{ wordWrap: "break-word", marginBottom: "10px" }}>
-              {sequences[key].join(" ")}
             </div>
-            <Plot {...makeCountPlot(sequences[key])} style={{ height: "200px" }} />
+          ))}
+        </div>
+        
+        <div style={tabContentStyle}>
+          {/* Key metrics section */}
+          <div style={{ marginBottom: "20px" }}>
+            <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Key Metrics</h3>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+              <div style={metricCardStyle}>
+                <div style={{ fontSize: "14px", color: "#666" }}>Group A</div>
+                <div style={{ fontSize: "24px", fontWeight: "bold" }}>{stats[activeTab].countA}</div>
+                <div style={{ fontSize: "14px", color: "#666" }}>
+                  {formatPercent(stats[activeTab].countA / (stats[activeTab].countA + stats[activeTab].countB))}
+                </div>
+              </div>
+              
+              <div style={metricCardStyle}>
+                <div style={{ fontSize: "14px", color: "#666" }}>Group B</div>
+                <div style={{ fontSize: "24px", fontWeight: "bold" }}>{stats[activeTab].countB}</div>
+                <div style={{ fontSize: "14px", color: "#666" }}>
+                  {formatPercent(stats[activeTab].countB / (stats[activeTab].countA + stats[activeTab].countB))}
+                </div>
+              </div>
+              
+              <div style={metricCardStyle}>
+                <div style={{ fontSize: "14px", color: "#666" }}>Effect Size</div>
+                <div style={{ 
+                  fontSize: "24px", 
+                  fontWeight: "bold",
+                  color: stats[activeTab].effectSize > 0.15 ? "#228B22" : stats[activeTab].effectSize === 0 ? "#DC143C" : "inherit"
+                }}>
+                  {stats[activeTab].effectSize}
+                </div>
+              </div>
+              
+              <div style={metricCardStyle}>
+                <div style={{ fontSize: "14px", color: "#666" }}>P-Value</div>
+                <div style={{ 
+                  fontSize: "24px", 
+                  fontWeight: "bold",
+                  color: stats[activeTab].pValue < 0.05 ? "#228B22" : stats[activeTab].pValue > 0.5 ? "#DC143C" : "inherit"
+                }}>
+                  {stats[activeTab].pValue}
+                </div>
+              </div>
+              
+              <div style={metricCardStyle}>
+                <div style={{ fontSize: "14px", color: "#666" }}>Longest Run</div>
+                <div style={{ 
+                  fontSize: "24px", 
+                  fontWeight: "bold",
+                  color: stats[activeTab].longestRun > 5 ? "#DC143C" : stats[activeTab].longestRun < 3 ? "#228B22" : "inherit"
+                }}>
+                  {stats[activeTab].longestRun}
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
+          
+          {/* Sequence visualization and analysis */}
+          <div>
+            <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Sequence Visualization</h3>
+            <SequenceVisualizer sequence={sequences[activeTab]} />
+            
+            <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px", gap: "20px" }}>
+              <div style={{ flex: "1", minWidth: "250px" }}>
+                <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Group Distribution</h3>
+                <GroupDistributionVisualizer sequence={sequences[activeTab]} />
+              </div>
+              
+              <div style={{ flex: "1", minWidth: "250px" }}>
+                <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Run Length Analysis</h3>
+                <RunLengthVisualizer sequence={sequences[activeTab]} />
+              </div>
+            </div>
+            
+            {/* Method characteristics */}
+            <div style={{ marginTop: "30px", padding: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px", boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)" }}>
+              <h4 style={{ marginBottom: "10px" }}>Method Characteristics</h4>
+              <p>
+                {activeTab === "systematic" ? 
+                  "Alternating allocation produces perfectly balanced groups but is highly predictable, creating a completely deterministic pattern that can be easily identified and potentially gamed. This method eliminates selection bias but creates allocation bias." : 
+                activeTab === "manual" ? 
+                  "Manual allocation attempts to maintain balance while introducing some randomness. This approach tries to limit runs and create a more random-appearing sequence, but still contains patterns that can be detected with analysis." :
+                  "True randomization provides the best protection against bias and prediction. Although it may produce temporary imbalances or runs, these are statistical artifacts rather than design flaws. Random allocation is the gold standard for unbiased group assignment."}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <button onClick={regenerateSequences} className="regenerate-button">
