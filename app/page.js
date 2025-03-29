@@ -593,7 +593,6 @@ export default function Page() {
 
           {/* Sequence visualization and analysis */}
           <div>
-            <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Sequence Visualization</h3>
             <SequenceVisualizer sequence={sequences[activeTab]} />
           </div>
         </div>
