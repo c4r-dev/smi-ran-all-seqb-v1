@@ -135,7 +135,9 @@ export default function Page() {
   return (
     <div>
       <h2 className="responsive-text">
-        What happens when these allocation sequences are used for larger studies (n=300)?
+        Now that we've identified the truly random sequence, let's compare how different allocation methods perform with larger sample sizes (n=300).
+        <br /> <br />
+        True effect size: .20
       </h2>
       <div
         style={{
