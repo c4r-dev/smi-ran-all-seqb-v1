@@ -142,8 +142,10 @@ const BarChartVisualizer = ({ sequence }) => {
   const percentB = (countB / total * 100).toFixed(1);
 
   // Bar styling
-  const barHeight = 50;
-  const maxBarWidth = 100; // percentage
+  const barWidth = 120;
+  const maxBarHeight = 200; // pixels
+  const barHeightA = Math.max((percentA / 100) * maxBarHeight, 30); // Min height 30px
+  const barHeightB = Math.max((percentB / 100) * maxBarHeight, 30); // Min height 30px
 
   return (
     <div style={{
@@ -158,27 +160,28 @@ const BarChartVisualizer = ({ sequence }) => {
         Sequence Distribution
       </h4>
 
-      {/* Group A Bar */}
-      <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        height: `${maxBarHeight + 50}px`
+      }}>
+        {/* Group A Bar */}
         <div style={{
-          width: '80px',
-          textAlign: 'right',
-          paddingRight: '15px',
-          fontWeight: 'bold',
-          fontSize: '16px'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginRight: '40px'
         }}>
-          A
-        </div>
-        <div style={{ flex: 1 }}>
           <div style={{
-            height: `${barHeight}px`,
-            width: `${percentA}%`,
+            width: `${barWidth}px`,
+            height: `${barHeightA}px`,
             backgroundColor: '#39E1F8',
-            borderRadius: '6px',
+            borderRadius: '6px 6px 0 0',
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'center',
-            transition: 'width 0.5s ease'
+            alignItems: 'center',
+            transition: 'height 0.5s ease'
           }}>
             <span style={{
               color: 'white',
@@ -186,36 +189,43 @@ const BarChartVisualizer = ({ sequence }) => {
               textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
             }}>{countA} ({percentA}%)</span>
           </div>
-        </div>
-      </div>
-
-      {/* Group B Bar */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{
-          width: '80px',
-          textAlign: 'right',
-          paddingRight: '15px',
-          fontWeight: 'bold',
-          fontSize: '16px'
-        }}>
-          B
-        </div>
-        <div style={{ flex: 1 }}>
           <div style={{
-            height: `${barHeight}px`,
-            width: `${percentB}%`,
+            marginTop: '10px',
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }}>
+            A
+          </div>
+        </div>
+
+        {/* Group B Bar */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            width: `${barWidth}px`,
+            height: `${barHeightB}px`,
             backgroundColor: '#FFA800',
-            borderRadius: '6px',
+            borderRadius: '6px 6px 0 0',
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'center',
-            transition: 'width 0.5s ease'
+            alignItems: 'center',
+            transition: 'height 0.5s ease'
           }}>
             <span style={{
               color: 'white',
               fontWeight: 'bold',
               textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
             }}>{countB} ({percentB}%)</span>
+          </div>
+          <div style={{
+            marginTop: '10px',
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }}>
+            B
           </div>
         </div>
       </div>
