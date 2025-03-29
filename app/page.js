@@ -86,15 +86,15 @@ const getLongestRun = (sequence) => {
 const calculateEffectSize = (sequence) => {
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
-  
+
   // Calculate proportions
   const totalCount = countA + countB;
   const propA = countA / totalCount;
   const propB = countB / totalCount;
-  
+
   // Calculate observed effect (difference in proportions)
   const observedEffect = Math.abs(propA - propB);
-  
+
   // Return effect size with random variation around true effect (0.20)
   // Different allocation methods will produce different biases
   if (sequence.every((val, i) => i % 2 === 0 ? val === 'A' : val === 'B')) {
@@ -111,10 +111,10 @@ const calculateEffectSize = (sequence) => {
 const calculatePValue = (sequence, type) => {
   const countA = sequence.filter(item => item === 'A').length;
   const countB = sequence.filter(item => item === 'B').length;
-  
+
   // Base p-value calculation on imbalance
   const imbalance = Math.abs(countA - countB);
-  
+
   // Adjust based on allocation type
   if (type === 'systematic') {
     // Systematic allocation has deterministic balance, so p-value is high
@@ -135,7 +135,7 @@ const SequenceVisualizer = ({ sequence }) => {
   const chunkSize = 30; // Elements per row
   const renderSquares = () => {
     const rows = [];
-    
+
     for (let i = 0; i < sequence.length; i += chunkSize) {
       const chunk = sequence.slice(i, i + chunkSize);
       const rowItems = chunk.map((item, index) => (
@@ -153,21 +153,21 @@ const SequenceVisualizer = ({ sequence }) => {
           {item}
         </div>
       ));
-      
+
       rows.push(
         <div key={`row-${i}`} style={{ marginBottom: '2px' }}>
           {rowItems}
         </div>
       );
     }
-    
+
     return rows;
   };
-  
+
   return (
-    <div style={{ 
-      backgroundColor: '#f9f9f9', 
-      padding: '15px', 
+    <div style={{
+      backgroundColor: '#f9f9f9',
+      padding: '15px',
       borderRadius: '8px',
       boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
       fontFamily: 'monospace'
@@ -183,31 +183,31 @@ const GroupDistributionVisualizer = ({ sequence }) => {
     acc[val] = (acc[val] || 0) + 1;
     return acc;
   }, {});
-  
+
   const total = sequence.length;
   const countA = counts["A"] || 0;
   const countB = counts["B"] || 0;
   const percentA = (countA / total * 100).toFixed(1);
   const percentB = (countB / total * 100).toFixed(1);
-  
+
   const barHeight = 40;
-  
+
   return (
-    <div style={{ 
-      backgroundColor: '#f9f9f9', 
-      padding: '20px', 
+    <div style={{
+      backgroundColor: '#f9f9f9',
+      padding: '20px',
       borderRadius: '8px',
       boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)'
     }}>
       <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Group Distribution</h4>
-      
+
       <div style={{ display: 'flex', marginBottom: '15px', alignItems: 'center' }}>
         <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
           Group A:
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ 
-            height: `${barHeight}px`, 
+          <div style={{
+            height: `${barHeight}px`,
             width: `${percentA}%`,
             backgroundColor: '#39E1F8',
             borderRadius: '4px',
@@ -219,14 +219,14 @@ const GroupDistributionVisualizer = ({ sequence }) => {
           </div>
         </div>
       </div>
-      
+
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
           Group B:
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ 
-            height: `${barHeight}px`, 
+          <div style={{
+            height: `${barHeight}px`,
             width: `${percentB}%`,
             backgroundColor: '#FFA800',
             borderRadius: '4px',
@@ -246,7 +246,7 @@ const GroupDistributionVisualizer = ({ sequence }) => {
 const calculateRunLengths = (sequence) => {
   const runLengths = [];
   let currentRun = 1;
-  
+
   for (let i = 1; i < sequence.length; i++) {
     if (sequence[i] === sequence[i - 1]) {
       currentRun++;
@@ -258,7 +258,7 @@ const calculateRunLengths = (sequence) => {
       currentRun = 1;
     }
   }
-  
+
   // Add the last run
   if (sequence.length > 0) {
     runLengths.push({
@@ -266,11 +266,11 @@ const calculateRunLengths = (sequence) => {
       type: sequence[sequence.length - 1]
     });
   }
-  
+
   // Count runs of each length by type
   const typeA = Array(10).fill(0);
   const typeB = Array(10).fill(0);
-  
+
   runLengths.forEach(run => {
     const index = Math.min(run.length - 1, 9); // Cap at 10+
     if (run.type === 'A') {
@@ -279,32 +279,32 @@ const calculateRunLengths = (sequence) => {
       typeB[index]++;
     }
   });
-  
+
   return { typeA, typeB, runLengths };
 };
 
 // Run Length Visualizer Component
 const RunLengthVisualizer = ({ sequence }) => {
   const { typeA, typeB } = calculateRunLengths(sequence);
-  
+
   // Create x-axis labels
   const xLabels = Array.from({ length: 9 }, (_, i) => (i + 1).toString());
   xLabels.push('10+');
-  
+
   const maxCount = Math.max(...[...typeA, ...typeB]);
   const barHeight = 15;
   const barSpacing = 5;
-  
+
   return (
-    <div style={{ 
-      backgroundColor: '#f9f9f9', 
-      padding: '20px', 
+    <div style={{
+      backgroundColor: '#f9f9f9',
+      padding: '20px',
       borderRadius: '8px',
       boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
       marginBottom: '20px'
     }}>
       <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Run Length Distribution</h4>
-      
+
       <div style={{ display: 'flex', marginBottom: '10px' }}>
         <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
           Group A:
@@ -315,10 +315,10 @@ const RunLengthVisualizer = ({ sequence }) => {
               <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
                 {xLabels[i]}
               </div>
-              <div 
-                style={{ 
-                  height: `${barHeight}px`, 
-                  width: `${(count / maxCount) * 100}%`, 
+              <div
+                style={{
+                  height: `${barHeight}px`,
+                  width: `${(count / maxCount) * 100}%`,
                   backgroundColor: '#39E1F8',
                   display: 'flex',
                   alignItems: 'center',
@@ -332,7 +332,7 @@ const RunLengthVisualizer = ({ sequence }) => {
           ))}
         </div>
       </div>
-      
+
       <div style={{ display: 'flex' }}>
         <div style={{ width: '100px', textAlign: 'right', paddingRight: '10px', fontWeight: 'bold' }}>
           Group B:
@@ -343,10 +343,10 @@ const RunLengthVisualizer = ({ sequence }) => {
               <div style={{ width: '30px', textAlign: 'center', fontSize: '12px' }}>
                 {xLabels[i]}
               </div>
-              <div 
-                style={{ 
-                  height: `${barHeight}px`, 
-                  width: `${(count / maxCount) * 100}%`, 
+              <div
+                style={{
+                  height: `${barHeight}px`,
+                  width: `${(count / maxCount) * 100}%`,
                   backgroundColor: '#FFA800',
                   display: 'flex',
                   alignItems: 'center',
@@ -360,7 +360,7 @@ const RunLengthVisualizer = ({ sequence }) => {
           ))}
         </div>
       </div>
-      
+
       <div style={{ fontSize: '12px', color: '#666', marginTop: '15px', textAlign: 'center' }}>
         Shows how many times consecutive sequences of each length appear
       </div>
@@ -381,9 +381,9 @@ export default function Page() {
       manual: generateManual(),
       random: generateRandom(),
     };
-    
+
     setSequences(newSequences);
-    
+
     // Calculate statistics for the sequences
     const newStats = {
       systematic: {
@@ -408,9 +408,9 @@ export default function Page() {
         countB: newSequences.random.filter(item => item === 'B').length
       }
     };
-    
+
     setStats(newStats);
-    
+
     // Initialize the first generation
     const firstGeneration = [
       {
@@ -429,7 +429,7 @@ export default function Page() {
         stats: newStats.random
       }
     ];
-    
+
     setAllGenerations(firstGeneration);
   }, []);
 
@@ -443,9 +443,9 @@ export default function Page() {
       manual: generateManual(),
       random: generateRandom(),
     };
-    
+
     setSequences(newSequences);
-    
+
     // Recalculate statistics
     const newStats = {
       systematic: {
@@ -470,13 +470,13 @@ export default function Page() {
         countB: newSequences.random.filter(item => item === 'B').length
       }
     };
-    
+
     setStats(newStats);
-    
+
     // Get the latest generation number
     const latestGen = Math.max(...allGenerations.map(item => item.id), 0);
     const newGenNumber = latestGen + 1;
-    
+
     // Add new generation data to history
     const newGeneration = [
       {
@@ -495,7 +495,7 @@ export default function Page() {
         stats: newStats.random
       }
     ];
-    
+
     // Update the generations history (limit to last 5 generations to avoid clutter)
     setAllGenerations(prevGens => {
       const combined = [...prevGens, ...newGeneration];
@@ -568,95 +568,9 @@ export default function Page() {
         <br /> <br />
         True effect size: .20
       </h2>
-      
-      {/* Stats summary table */}
-      <div style={{ maxWidth: "900px", margin: "30px auto" }}>
-        <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Comparison of Allocation Methods</h3>
-        <table style={{ 
-          width: "100%", 
-          borderCollapse: "collapse", 
-          textAlign: "center",
-          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
-          borderRadius: "8px",
-          overflow: "hidden"
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
-              <th style={{ padding: "12px 15px" }}>Allocation Method</th>
-              <th style={{ padding: "12px 15px" }}>Group A</th>
-              <th style={{ padding: "12px 15px" }}>Group B</th>
-              <th style={{ padding: "12px 15px" }}>Effect Size</th>
-              <th style={{ padding: "12px 15px" }}>p-value</th>
-              <th style={{ padding: "12px 15px" }}>Longest Run</th>
-              <th style={{ padding: "12px 15px" }}>Generation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allGenerations.map((gen, index) => {
-              const isCurrentGen = gen.id === Math.max(...allGenerations.map(g => g.id)) && 
-                                  gen.method === activeTab;
-              return (
-                <tr 
-                  key={`${gen.method}-${gen.id}`} 
-                  style={{ 
-                    backgroundColor: isCurrentGen ? "#e0d0ff" : index % 2 === 0 ? "#f9f6ff" : "white",
-                    transition: "background-color 0.2s ease",
-                    cursor: "pointer"
-                  }}
-                  onClick={() => {
-                    // Only set activeTab for the current generation
-                    if (gen.id === Math.max(...allGenerations.map(g => g.id))) {
-                      setActiveTab(gen.method);
-                    }
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0e6ff"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isCurrentGen ? "#e0d0ff" : index % 2 === 0 ? "#f9f6ff" : "white"}
-                >
-                  <td style={{ padding: "12px 15px", fontWeight: isCurrentGen ? "bold" : "normal" }}>
-                    {gen.method === "systematic"
-                      ? "Alternating Allocation"
-                      : gen.method === "manual"
-                        ? "Manual Allocation"
-                        : "Randomized Allocation"}
-                  </td>
-                  <td style={{ padding: "12px 15px" }}>
-                    {gen.stats.countA} ({formatPercent(gen.stats.countA / (gen.stats.countA + gen.stats.countB))})
-                  </td>
-                  <td style={{ padding: "12px 15px" }}>
-                    {gen.stats.countB} ({formatPercent(gen.stats.countB / (gen.stats.countA + gen.stats.countB))})
-                  </td>
-                  <td style={{ 
-                    padding: "12px 15px",
-                    color: gen.stats.effectSize > 0.15 ? "#228B22" : gen.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                  }}>
-                    {gen.stats.effectSize}
-                  </td>
-                  <td style={{ 
-                    padding: "12px 15px",
-                    color: gen.stats.pValue < 0.05 ? "#228B22" : gen.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                  }}>
-                    {gen.stats.pValue}
-                  </td>
-                  <td style={{ 
-                    padding: "12px 15px",
-                    color: gen.stats.longestRun > 5 ? "#DC143C" : gen.stats.longestRun < 3 ? "#228B22" : "inherit"
-                  }}>
-                    {gen.stats.longestRun}
-                  </td>
-                  <td style={{ padding: "12px 15px" }}>
-                    {gen.id}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <div style={{ fontSize: "14px", color: "#666", marginTop: "10px", textAlign: "center" }}>
-          <p>Effect size closer to 0.20 is better. P-value &lt; 0.05 indicates statistical significance.</p>
-          <p>Click on rows from the current generation to view detailed visualizations.</p>
-        </div>
-      </div>
-      
+
+
+
       {/* Tabs for different allocation methods */}
       <div style={{ maxWidth: "900px", margin: "30px auto" }}>
         <div style={{ display: "flex", marginBottom: "-1px" }}>
@@ -674,81 +588,244 @@ export default function Page() {
             </div>
           ))}
         </div>
-        
+
         <div style={tabContentStyle}>
-          {/* Key metrics section */}
-          <div style={{ marginBottom: "20px" }}>
-            <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Key Metrics</h3>
-            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-              <div style={metricCardStyle}>
-                <div style={{ fontSize: "14px", color: "#666" }}>Group A</div>
-                <div style={{ fontSize: "24px", fontWeight: "bold" }}>{stats[activeTab].countA}</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>
-                  {formatPercent(stats[activeTab].countA / (stats[activeTab].countA + stats[activeTab].countB))}
-                </div>
-              </div>
-              
-              <div style={metricCardStyle}>
-                <div style={{ fontSize: "14px", color: "#666" }}>Group B</div>
-                <div style={{ fontSize: "24px", fontWeight: "bold" }}>{stats[activeTab].countB}</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>
-                  {formatPercent(stats[activeTab].countB / (stats[activeTab].countA + stats[activeTab].countB))}
-                </div>
-              </div>
-              
-              <div style={metricCardStyle}>
-                <div style={{ fontSize: "14px", color: "#666" }}>Effect Size</div>
-                <div style={{ 
-                  fontSize: "24px", 
-                  fontWeight: "bold",
-                  color: stats[activeTab].effectSize > 0.15 ? "#228B22" : stats[activeTab].effectSize === 0 ? "#DC143C" : "inherit"
-                }}>
-                  {stats[activeTab].effectSize}
-                </div>
-              </div>
-              
-              <div style={metricCardStyle}>
-                <div style={{ fontSize: "14px", color: "#666" }}>P-Value</div>
-                <div style={{ 
-                  fontSize: "24px", 
-                  fontWeight: "bold",
-                  color: stats[activeTab].pValue < 0.05 ? "#228B22" : stats[activeTab].pValue > 0.5 ? "#DC143C" : "inherit"
-                }}>
-                  {stats[activeTab].pValue}
-                </div>
-              </div>
-              
-              <div style={metricCardStyle}>
-                <div style={{ fontSize: "14px", color: "#666" }}>Longest Run</div>
-                <div style={{ 
-                  fontSize: "24px", 
-                  fontWeight: "bold",
-                  color: stats[activeTab].longestRun > 5 ? "#DC143C" : stats[activeTab].longestRun < 3 ? "#228B22" : "inherit"
-                }}>
-                  {stats[activeTab].longestRun}
-                </div>
-              </div>
-            </div>
-          </div>
-          
+
           {/* Sequence visualization and analysis */}
           <div>
             <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Sequence Visualization</h3>
             <SequenceVisualizer sequence={sequences[activeTab]} />
-            
-            <div style={{ display: "flex", flexWrap: "wrap", marginTop: "30px", gap: "20px" }}>
-              <div style={{ flex: "1", minWidth: "250px" }}>
-                <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Group Distribution</h3>
-                <GroupDistributionVisualizer sequence={sequences[activeTab]} />
-              </div>
-              
-              <div style={{ flex: "1", minWidth: "250px" }}>
-                <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Run Length Analysis</h3>
-                <RunLengthVisualizer sequence={sequences[activeTab]} />
-              </div>
-            </div>
           </div>
         </div>
+      </div>
+
+      {/* Stats summary table */}
+      <div style={{ maxWidth: "1200px", margin: "30px auto", overflowX: "auto" }}>
+        <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Comparison of Allocation Methods</h3>
+        <table style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          textAlign: "center",
+          boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: "8px",
+          overflow: "hidden"
+        }}>
+          <thead>
+            <tr style={{ backgroundColor: "#6F00FF", color: "white" }}>
+              <th style={{ padding: "12px 15px" }}>Gen</th>
+              {/* Alternating Allocation columns */}
+              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Alternating Allocation</th>
+              {/* Manual Allocation columns */}
+              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Manual Allocation</th>
+              {/* Random Allocation columns */}
+              <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Randomized Allocation</th>
+            </tr>
+            <tr style={{ backgroundColor: "#9966FF", color: "white" }}>
+              <th style={{ padding: "8px 10px" }}></th>
+              {/* Alternating Allocation subheaders */}
+              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+              <th style={{ padding: "8px 10px" }}>Effect</th>
+              <th style={{ padding: "8px 10px" }}>p-value</th>
+              <th style={{ padding: "8px 10px" }}>Run</th>
+              {/* Manual Allocation subheaders */}
+              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+              <th style={{ padding: "8px 10px" }}>Effect</th>
+              <th style={{ padding: "8px 10px" }}>p-value</th>
+              <th style={{ padding: "8px 10px" }}>Run</th>
+              {/* Random Allocation subheaders */}
+              <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
+              <th style={{ padding: "8px 10px" }}>Effect</th>
+              <th style={{ padding: "8px 10px" }}>p-value</th>
+              <th style={{ padding: "8px 10px" }}>Run</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              // Get unique generation IDs and sort them in descending order
+              [...new Set(allGenerations.map(gen => gen.id))]
+                .sort((a, b) => b - a)
+                .map(genId => {
+                  // Get all entries for this generation
+                  const genEntries = allGenerations.filter(gen => gen.id === genId);
+
+                  // Create a map of method to entry for easy access
+                  const methodMap = {};
+                  genEntries.forEach(entry => {
+                    methodMap[entry.method] = entry;
+                  });
+
+                  // Check if this is the current active generation
+                  const isCurrentGen = genId === Math.max(...allGenerations.map(g => g.id));
+
+                  return (
+                    <tr
+                      key={`generation-${genId}`}
+                      style={{
+                        backgroundColor: isCurrentGen ? "#f9f6ff" : "white",
+                        transition: "background-color 0.2s ease"
+                      }}
+                    >
+                      {/* Generation number */}
+                      <td style={{
+                        padding: "12px",
+                        fontWeight: "bold",
+                        backgroundColor: "#f0f0f0"
+                      }}>
+                        {genId}
+                      </td>
+
+                      {/* Alternating Allocation */}
+                      {methodMap.systematic && (
+                        <>
+                          <td
+                            style={{
+                              padding: "10px",
+                              borderLeft: "2px solid #eee",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("systematic")}
+                          >
+                            {methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("systematic")}
+                          >
+                            {methodMap.systematic.stats.effectSize}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "systematic" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("systematic")}
+                          >
+                            {methodMap.systematic.stats.pValue}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit",
+                              cursor: "pointer"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("systematic")}
+                          >
+                            {methodMap.systematic.stats.longestRun}
+                          </td>
+                        </>
+                      )}
+
+                      {/* Manual Allocation */}
+                      {methodMap.manual && (
+                        <>
+                          <td
+                            style={{
+                              padding: "10px",
+                              borderLeft: "2px solid #eee",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("manual")}
+                          >
+                            {methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("manual")}
+                          >
+                            {methodMap.manual.stats.effectSize}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "manual" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("manual")}
+                          >
+                            {methodMap.manual.stats.pValue}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit",
+                              cursor: "pointer"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("manual")}
+                          >
+                            {methodMap.manual.stats.longestRun}
+                          </td>
+                        </>
+                      )}
+
+                      {/* Random Allocation */}
+                      {methodMap.random && (
+                        <>
+                          <td
+                            style={{
+                              padding: "10px",
+                              borderLeft: "2px solid #eee",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("random")}
+                          >
+                            {methodMap.random.stats.countA}/{methodMap.random.stats.countB}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("random")}
+                          >
+                            {methodMap.random.stats.effectSize}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                              cursor: isCurrentGen ? "pointer" : "default",
+                              backgroundColor: activeTab === "random" && isCurrentGen ? "#f0e6ff" : "transparent"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("random")}
+                          >
+                            {methodMap.random.stats.pValue}
+                          </td>
+                          <td
+                            style={{
+                              padding: "10px",
+                              color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit",
+                              cursor: "pointer"
+                            }}
+                            onClick={() => isCurrentGen && setActiveTab("random")}
+                          >
+                            {methodMap.random.stats.longestRun}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })
+            }
+          </tbody>
+        </table>
       </div>
 
       <button onClick={regenerateSequences} className="regenerate-button">
@@ -756,4 +833,5 @@ export default function Page() {
       </button>
 
     </div>
-  )};
+  )
+};
