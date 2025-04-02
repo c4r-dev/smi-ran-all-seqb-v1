@@ -123,7 +123,7 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
 
   // Create a visual representation of the first 49 items
   const sequencePreview = sequence.slice(0, 49);
-  
+
   return (
     <div style={{
       backgroundColor: '#f9f9f9',
@@ -135,11 +135,11 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
       flexDirection: 'column'
     }}>
       <h4 style={{ textAlign: 'center', marginBottom: '10px' }}>{title}</h4>
-      
+
       {/* Sequence preview - first 49 items */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap', 
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
         justifyContent: 'center',
         marginBottom: '5px', /* Reduced from 15px to 5px */
         padding: '8px',
@@ -161,12 +161,12 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
             fontWeight: 'bold',
             fontSize: '16px',
             textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
-          }} title={`Item ${index+1}: ${item}`}>
+          }} title={`Item ${index + 1}: ${item}`}>
             {item}
           </div>
         ))}
       </div>
-      
+
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
