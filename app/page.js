@@ -238,7 +238,7 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
             }}>{percentB}%</div>
           </div>
         </div>
-        {/* Right side: Statistics */}
+        {/* Right side: Statistics
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -284,7 +284,7 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
               color: stats.pValue < 0.05 ? '#228B22' : stats.pValue > 0.5 ? '#DC143C' : 'inherit'
             }}>{stats.pValue}</span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
