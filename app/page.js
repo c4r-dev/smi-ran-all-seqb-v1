@@ -121,8 +121,8 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
   const barHeightA = Math.max((percentA / 100) * maxBarHeight, 30); // Min height 30px
   const barHeightB = Math.max((percentB / 100) * maxBarHeight, 30); // Min height 30px
 
-  // Create a visual representation of the first 50 items
-  const sequencePreview = sequence.slice(0, 50);
+  // Create a visual representation of the first 49 items
+  const sequencePreview = sequence.slice(0, 49);
   
   return (
     <div style={{
@@ -136,7 +136,7 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
     }}>
       <h4 style={{ textAlign: 'center', marginBottom: '10px' }}>{title}</h4>
       
-      {/* Sequence preview - first 50 items */}
+      {/* Sequence preview - first 49 items */}
       <div style={{ 
         display: 'flex', 
         flexWrap: 'wrap', 
