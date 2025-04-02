@@ -82,33 +82,25 @@ const getLongestRun = (sequence) => {
 };
 
 // Calculate effect size
-const calculateEffectSize = (sequence) => {
-  // Return effect size with random variation around true effect (0.20)
-  // Different allocation methods will produce different biases
-  if (sequence.every((val, i) => i % 2 === 0 ? val === 'A' : val === 'B')) {
-    // Systematic allocation - always balanced (0)
-    return 0;
+const calculateEffectSize = (set) => {
+  const trueEffectSize = 0.2;
+  if (set === "s1") {
+    return (trueEffectSize + Math.random() * 0.5 + 0.3).toFixed(2); // Very inflated
+  } else if (set === "s2") {
+    return (trueEffectSize + Math.random() * 0.2 + 0.1).toFixed(2); // Moderately inflated
   } else {
-    // Add some randomness around the true effect
-    const variation = Math.random() * 0.15 - 0.05; // Range: -0.05 to 0.10
-    return Math.max(0, Math.round((0.20 + variation) * 100) / 100);
+    return (trueEffectSize + (Math.random() * 0.2 - 0.1)).toFixed(2); // Closer to true effect
   }
 };
 
 // Calculate p-value
-const calculatePValue = (type) => {
-  // Adjust based on allocation type
-  if (type === 'systematic') {
-    // Systematic allocation has deterministic balance, so p-value is high
-    return Math.round((0.8 + Math.random() * 0.19) * 100) / 100;
-  } else if (type === 'manual') {
-    // Manual allocation aims for balance but has some variability
-    return Math.round((0.3 + Math.random() * 0.4) * 100) / 100;
+const calculatePValue = (set) => {
+  if (set === "s1") {
+    return (Math.random() * 0.03).toFixed(3); // Always "significant"
+  } else if (set === "s2") {
+    return (Math.random() * 0.08).toFixed(3); // Often "significant"
   } else {
-    // Random allocation has the most variability
-    // Sometimes significant by chance (p < 0.05)
-    const basePValue = Math.random() * 0.5;
-    return Math.round(basePValue * 100) / 100;
+    return (Math.random() * 0.25 + 0.05).toFixed(3); // More variable
   }
 };
 
@@ -263,8 +255,8 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
             marginBottom: '15px'
           }}>
             <span style={{ fontSize: '12px', color: '#666' }}>Longest Run:</span>
-            <span style={{ 
-              fontWeight: 'bold', 
+            <span style={{
+              fontWeight: 'bold',
               fontSize: '16px',
               color: stats.longestRun > 5 ? '#DC143C' : stats.longestRun < 3 ? '#228B22' : 'inherit'
             }}>{stats.longestRun}</span>
@@ -275,8 +267,8 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
             marginBottom: '15px'
           }}>
             <span style={{ fontSize: '12px', color: '#666' }}>Effect Size:</span>
-            <span style={{ 
-              fontWeight: 'bold', 
+            <span style={{
+              fontWeight: 'bold',
               fontSize: '16px',
               color: stats.effectSize > 0.15 ? '#228B22' : stats.effectSize === 0 ? '#DC143C' : 'inherit'
             }}>{stats.effectSize}</span>
@@ -286,8 +278,8 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
             flexDirection: 'column'
           }}>
             <span style={{ fontSize: '12px', color: '#666' }}>p-value:</span>
-            <span style={{ 
-              fontWeight: 'bold', 
+            <span style={{
+              fontWeight: 'bold',
               fontSize: '16px',
               color: stats.pValue < 0.05 ? '#228B22' : stats.pValue > 0.5 ? '#DC143C' : 'inherit'
             }}>{stats.pValue}</span>
@@ -316,22 +308,22 @@ export default function Page() {
     // Calculate statistics for the sequences
     const newStats = {
       systematic: {
-        effectSize: calculateEffectSize(newSequences.systematic),
-        pValue: calculatePValue('systematic'),
+        effectSize: calculateEffectSize('s1'),
+        pValue: calculatePValue('s1'),
         longestRun: getLongestRun(newSequences.systematic),
         countA: newSequences.systematic.filter(item => item === 'A').length,
         countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
-        effectSize: calculateEffectSize(newSequences.manual),
-        pValue: calculatePValue('manual'),
+        effectSize: calculateEffectSize('s2'),
+        pValue: calculatePValue('s2'),
         longestRun: getLongestRun(newSequences.manual),
         countA: newSequences.manual.filter(item => item === 'A').length,
         countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
-        effectSize: calculateEffectSize(newSequences.random),
-        pValue: calculatePValue('random'),
+        effectSize: calculateEffectSize('s3'),
+        pValue: calculatePValue('s3'),
         longestRun: getLongestRun(newSequences.random),
         countA: newSequences.random.filter(item => item === 'A').length,
         countB: newSequences.random.filter(item => item === 'B').length
@@ -378,22 +370,22 @@ export default function Page() {
     // Recalculate statistics
     const newStats = {
       systematic: {
-        effectSize: calculateEffectSize(newSequences.systematic),
-        pValue: calculatePValue('systematic'),
+        effectSize: calculateEffectSize('s1'),
+        pValue: calculatePValue('s1'),
         longestRun: getLongestRun(newSequences.systematic),
         countA: newSequences.systematic.filter(item => item === 'A').length,
         countB: newSequences.systematic.filter(item => item === 'B').length
       },
       manual: {
-        effectSize: calculateEffectSize(newSequences.manual),
-        pValue: calculatePValue('manual'),
+        effectSize: calculateEffectSize('s2'),
+        pValue: calculatePValue('s2'),
         longestRun: getLongestRun(newSequences.manual),
         countA: newSequences.manual.filter(item => item === 'A').length,
         countB: newSequences.manual.filter(item => item === 'B').length
       },
       random: {
-        effectSize: calculateEffectSize(newSequences.random),
-        pValue: calculatePValue('random'),
+        effectSize: calculateEffectSize('s3'),
+        pValue: calculatePValue('s3'),
         longestRun: getLongestRun(newSequences.random),
         countA: newSequences.random.filter(item => item === 'A').length,
         countB: newSequences.random.filter(item => item === 'B').length
@@ -445,69 +437,69 @@ export default function Page() {
       </h2>
 
       {/* All three bar charts displayed horizontally */}
-      <div style={{ 
-        maxWidth: "1200px", 
-        margin: "30px auto", 
-        display: "flex", 
-        flexWrap: "wrap", 
-        justifyContent: "center", 
-        gap: "20px" 
+      <div style={{
+        maxWidth: "1200px",
+        margin: "30px auto",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: "20px"
       }}>
         {/* Box for Alternating Allocation */}
-        <div style={{ 
-          flex: "1 1 350px", 
-          minWidth: "320px", 
+        <div style={{
+          flex: "1 1 350px",
+          minWidth: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
           overflow: "hidden"
         }}>
-          <BarChartVisualizer 
-            sequence={sequences.systematic} 
-            title="Alternating Allocation" 
+          <BarChartVisualizer
+            sequence={sequences.systematic}
+            title="Alternating Allocation"
             stats={stats.systematic}
           />
         </div>
-        
+
         {/* Box for Manual Allocation */}
-        <div style={{ 
-          flex: "1 1 350px", 
-          minWidth: "320px", 
+        <div style={{
+          flex: "1 1 350px",
+          minWidth: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
           overflow: "hidden"
         }}>
-          <BarChartVisualizer 
-            sequence={sequences.manual} 
-            title="Manual Allocation" 
+          <BarChartVisualizer
+            sequence={sequences.manual}
+            title="Manual Allocation"
             stats={stats.manual}
           />
         </div>
-        
+
         {/* Box for Randomized Allocation */}
-        <div style={{ 
-          flex: "1 1 350px", 
-          minWidth: "320px", 
+        <div style={{
+          flex: "1 1 350px",
+          minWidth: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
           overflow: "hidden"
         }}>
-          <BarChartVisualizer 
-            sequence={sequences.random} 
-            title="Randomized Allocation" 
+          <BarChartVisualizer
+            sequence={sequences.random}
+            title="Randomized Allocation"
             stats={stats.random}
           />
         </div>
       </div>
 
       {/* NEW POSITION: Regenerate button placed between charts and table */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
         margin: "30px auto 20px auto",
-        maxWidth: "1200px" 
+        maxWidth: "1200px"
       }}>
         <button onClick={regenerateSequences} className="regenerate-button">
           Regenerate sequences
@@ -515,22 +507,22 @@ export default function Page() {
       </div>
 
       {/* Stats summary table - MODIFIED for better scrolling */}
-      <div style={{ 
-        maxWidth: "1200px", 
-        margin: "30px auto", 
+      <div style={{
+        maxWidth: "1200px",
+        margin: "30px auto",
         boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
         borderRadius: "8px",
         backgroundColor: "white"
       }}>
-        <h3 style={{ 
-          textAlign: "center", 
-          marginBottom: "15px", 
-          padding: "15px 15px 0 15px" 
+        <h3 style={{
+          textAlign: "center",
+          marginBottom: "15px",
+          padding: "15px 15px 0 15px"
         }}>Comparison of Allocation Methods</h3>
-        
+
         {/* Dedicated scrollable wrapper for the table */}
-        <div style={{ 
-          overflowY: "auto", 
+        <div style={{
+          overflowY: "auto",
           maxHeight: "400px",
           width: "100%",
           padding: "0 0 15px 0"
