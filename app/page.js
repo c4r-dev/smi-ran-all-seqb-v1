@@ -116,11 +116,14 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
   const percentB = (countB / total * 100).toFixed(1);
 
   // Bar styling
-  const barWidth = 80;
-  const maxBarHeight = 160; // pixels
+  const barWidth = 60; // Reduced from 80 (25% reduction)
+  const maxBarHeight = 200; // Reduced from 360 for shorter bars
   const barHeightA = Math.max((percentA / 100) * maxBarHeight, 30); // Min height 30px
   const barHeightB = Math.max((percentB / 100) * maxBarHeight, 30); // Min height 30px
 
+  // Create a visual representation of the first 50 items
+  const sequencePreview = sequence.slice(0, 50);
+  
   return (
     <div style={{
       backgroundColor: '#f9f9f9',
@@ -131,33 +134,73 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>{title}</h4>
+      <h4 style={{ textAlign: 'center', marginBottom: '10px' }}>{title}</h4>
+      
+      {/* Sequence preview - first 50 items */}
+      <div style={{ 
+        display: 'flex', 
+        flexWrap: 'wrap', 
+        justifyContent: 'center',
+        marginBottom: '5px', /* Reduced from 15px to 5px */
+        padding: '8px',
+        backgroundColor: 'white',
+        borderRadius: '4px',
+        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)'
+      }}>
+        {sequencePreview.map((item, index) => (
+          <div key={index} style={{
+            width: '32px',
+            height: '32px',
+            margin: '2px',
+            backgroundColor: item === 'A' ? '#39E1F8' : '#FFA800',
+            borderRadius: '4px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
+          }} title={`Item ${index+1}: ${item}`}>
+            {item}
+          </div>
+        ))}
+      </div>
+      
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexGrow: 1
+        flexGrow: 1,
+        backgroundColor: 'white',
+        borderRadius: '4px',
+        padding: '10px',
+        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)'
       }}>
-        {/* Left side: Bar Chart */}
+        {/* Bar Chart - Now takes full width */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          width: '100%'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'flex-end',
-            height: `${maxBarHeight + 30}px`,
+            height: `${Math.max(barHeightA, barHeightB) + 10}px`, // Dynamic height based on tallest bar
+            justifyContent: 'center',
+            width: '100%',
+            marginTop: '5px' /* Add small margin at top */
           }}>
             {/* Group A Bar */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              marginRight: '20px'
+              marginRight: '30px', // Reduced from 40px
             }}>
               <div style={{
-                width: `${barWidth}px`,
+                width: `${barWidth + 15}px`, // Reduced from barWidth + 20
                 height: `${barHeightA}px`,
                 backgroundColor: '#39E1F8',
                 borderRadius: '6px 6px 0 0',
@@ -181,7 +224,7 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
               alignItems: 'center'
             }}>
               <div style={{
-                width: `${barWidth}px`,
+                width: `${barWidth + 20}px`,
                 height: `${barHeightB}px`,
                 backgroundColor: '#FFA800',
                 borderRadius: '6px 6px 0 0',
@@ -203,19 +246,20 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
           <div style={{
             display: 'flex',
             width: '100%',
-            justifyContent: 'space-around',
+            justifyContent: 'center',
             marginTop: '5px'
           }}>
             <div style={{
               fontWeight: 'bold',
               fontSize: '16px',
-              width: `${barWidth}px`,
-              textAlign: 'center'
+              width: `${barWidth + 20}px`,
+              textAlign: 'center',
+              marginRight: '40px'
             }}>A</div>
             <div style={{
               fontWeight: 'bold',
               fontSize: '16px',
-              width: `${barWidth}px`,
+              width: `${barWidth + 20}px`,
               textAlign: 'center'
             }}>B</div>
           </div>
@@ -223,68 +267,22 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
           <div style={{
             display: 'flex',
             width: '100%',
-            justifyContent: 'space-around',
+            justifyContent: 'center',
             marginTop: '5px'
           }}>
             <div style={{
               fontSize: '14px',
-              width: `${barWidth}px`,
-              textAlign: 'center'
+              width: `${barWidth + 20}px`,
+              textAlign: 'center',
+              marginRight: '40px'
             }}>{percentA}%</div>
             <div style={{
               fontSize: '14px',
-              width: `${barWidth}px`,
+              width: `${barWidth + 20}px`,
               textAlign: 'center'
             }}>{percentB}%</div>
           </div>
         </div>
-        {/* Right side: Statistics
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '10px',
-          backgroundColor: 'white',
-          borderRadius: '6px',
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-          marginLeft: '15px',
-          minWidth: '120px'
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: '15px'
-          }}>
-            <span style={{ fontSize: '12px', color: '#666' }}>Longest Run:</span>
-            <span style={{
-              fontWeight: 'bold',
-              fontSize: '16px',
-              color: stats.longestRun > 5 ? '#DC143C' : stats.longestRun < 3 ? '#228B22' : 'inherit'
-            }}>{stats.longestRun}</span>
-          </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: '15px'
-          }}>
-            <span style={{ fontSize: '12px', color: '#666' }}>Effect Size:</span>
-            <span style={{
-              fontWeight: 'bold',
-              fontSize: '16px',
-              color: stats.effectSize > 0.15 ? '#228B22' : stats.effectSize === 0 ? '#DC143C' : 'inherit'
-            }}>{stats.effectSize}</span>
-          </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <span style={{ fontSize: '12px', color: '#666' }}>p-value:</span>
-            <span style={{
-              fontWeight: 'bold',
-              fontSize: '16px',
-              color: stats.pValue < 0.05 ? '#228B22' : stats.pValue > 0.5 ? '#DC143C' : 'inherit'
-            }}>{stats.pValue}</span>
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -447,8 +445,7 @@ export default function Page() {
       }}>
         {/* Box for Alternating Allocation */}
         <div style={{
-          flex: "1 1 350px",
-          minWidth: "320px",
+          width: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
@@ -463,8 +460,7 @@ export default function Page() {
 
         {/* Box for Manual Allocation */}
         <div style={{
-          flex: "1 1 350px",
-          minWidth: "320px",
+          width: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
@@ -479,8 +475,7 @@ export default function Page() {
 
         {/* Box for Randomized Allocation */}
         <div style={{
-          flex: "1 1 350px",
-          minWidth: "320px",
+          width: "320px",
           backgroundColor: "white",
           borderRadius: "8px",
           boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.05)",
