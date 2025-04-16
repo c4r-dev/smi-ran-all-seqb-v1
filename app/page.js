@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import CustomButton from "./components/CustomButton";
+
 
 const generateSystematic = (n = 200) => {
   return Array.from({ length: n }, (_, i) => (i % 2 === 0 ? "A" : "B"));
@@ -175,7 +177,8 @@ const BarChartVisualizer = ({ sequence, title, stats }) => {
         backgroundColor: 'white',
         borderRadius: '4px',
         padding: '10px',
-        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+        marginBottom: '40px'
       }}>
         {/* Bar Chart - Now takes full width */}
         <div style={{
@@ -292,6 +295,10 @@ export default function Page() {
   const [sequences, setSequences] = useState(null);
   const [stats, setStats] = useState(null);
   const [allGenerations, setAllGenerations] = useState([]);
+  // Add state for controlling table height
+  const [tableHeight, setTableHeight] = useState(350);
+  // Add state to track if there's more content to scroll
+  const [hasMoreContent, setHasMoreContent] = useState(false);
 
   useEffect(() => {
     // Generate sequences only after hydration
@@ -351,6 +358,28 @@ export default function Page() {
 
     setAllGenerations(firstGeneration);
   }, []);
+
+  // Effect to check if there's more content to scroll
+  useEffect(() => {
+    const checkScrollable = () => {
+      const tableWrapper = document.getElementById('table-scroll-wrapper');
+      if (tableWrapper) {
+        setHasMoreContent(tableWrapper.scrollHeight > tableWrapper.clientHeight);
+      }
+    };
+    
+    // Check after initial render and whenever generations change
+    setTimeout(checkScrollable, 100);
+    
+    // Add window resize listener
+    window.addEventListener('resize', checkScrollable);
+    return () => window.removeEventListener('resize', checkScrollable);
+  }, [allGenerations]);
+
+  // Function to expand/collapse table
+  const toggleTableHeight = () => {
+    setTableHeight(tableHeight === 350 ? 600 : 350);
+  };
 
   if (!sequences || !stats) {
     return <div>Loading...</div>; // Prevent rendering mismatches
@@ -422,7 +451,7 @@ export default function Page() {
       return combined.sort((a, b) => {
         if (a.id !== b.id) return b.id - a.id;
         return a.method.localeCompare(b.method);
-      }).slice(0, 15); // Keep last 15 rows (5 generations x 3 methods)
+      }).slice(0, 30); // Increased from 15 to 30 (10 generations x 3 methods)
     });
   };
 
@@ -489,16 +518,19 @@ export default function Page() {
         </div>
       </div>
 
-      {/* NEW POSITION: Regenerate button placed between charts and table */}
+      {/* Regenerate button placed between charts and table */}
       <div style={{
         display: "flex",
         justifyContent: "center",
         margin: "30px auto 20px auto",
         maxWidth: "1200px"
       }}>
-        <button onClick={regenerateSequences} className="regenerate-button">
-          Regenerate sequences
-        </button>
+        <CustomButton
+          variant="primary"
+          onClick={regenerateSequences}
+        >
+          Generate<br />New sequences
+        </CustomButton> 
       </div>
 
       {/* Stats summary table - MODIFIED for better scrolling */}
@@ -515,13 +547,18 @@ export default function Page() {
           padding: "15px 15px 0 15px"
         }}>Comparison of Allocation Methods</h3>
 
-        {/* Dedicated scrollable wrapper for the table */}
-        <div style={{
-          overflowY: "auto",
-          maxHeight: "400px",
-          width: "100%",
-          padding: "0 0 15px 0"
-        }}>
+        {/* Dedicated scrollable wrapper for the table with ID for reference */}
+        <div 
+          id="table-scroll-wrapper"
+          style={{
+            overflowY: "auto",
+            maxHeight: `${tableHeight}px`, // Dynamic height based on state
+            width: "100%",
+            padding: "0 0 15px 0",
+            position: "relative", // For absolute positioning of indicators
+            transition: "max-height 0.3s ease" // Smooth transition for height changes
+          }}
+        >
           <table style={{
             minWidth: "900px",
             width: "100%",
@@ -531,7 +568,8 @@ export default function Page() {
             <thead style={{
               position: "sticky",
               top: "0",
-              zIndex: "1"
+              zIndex: "2", // Increased z-index for header
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)" // Shadow for sticky header
             }}>
               <tr style={{ backgroundColor: "#00C802", color: "black" }}>
                 <th style={{ padding: "12px 15px" }}>Gen</th>
@@ -539,7 +577,7 @@ export default function Page() {
                 <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Manual Allocation</th>
                 <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Randomized Allocation</th>
               </tr>
-              <tr style={{ backgroundColor: "#00C80266", color: "black" }}>
+              <tr style={{ backgroundColor: "rgba(0, 200, 2, 0.6)", color: "black" }}>
                 <th style={{ padding: "8px 10px" }}></th>
                 <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
                 <th style={{ padding: "8px 10px" }}>Effect</th>
@@ -575,7 +613,10 @@ export default function Page() {
                       <td style={{
                         padding: "12px",
                         fontWeight: "bold",
-                        backgroundColor: "#f0f0f0"
+                        backgroundColor: "#f0f0f0",
+                        position: "sticky", // Sticky first column
+                        left: 0,
+                        zIndex: "1"
                       }}>{genId}</td>
                       {methodMap.systematic && (
                         <>
@@ -642,8 +683,57 @@ export default function Page() {
                 })}
             </tbody>
           </table>
+          
+          {/* Scroll indicator - only shown when there's more content */}
+          {hasMoreContent && tableHeight === 350 && (
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "30px",
+              background: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.8))",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-end",
+              padding: "5px",
+              cursor: "pointer"
+            }} onClick={toggleTableHeight}>
+              <div style={{ fontSize: "22px", color: "#555" }}>⌄</div>
+            </div>
+          )}
+        </div>
+        
+        {/* Button to expand/collapse table */}
+        <div style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "10px",
+          borderTop: "1px solid #eee",
+          backgroundColor: "#f9f9f9",
+          cursor: "pointer"
+        }} onClick={toggleTableHeight}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            color: "#555",
+            fontWeight: "medium",
+            fontSize: "14px"
+          }}>
+            {tableHeight === 350 ? (
+              <>
+                <span>Show more results</span>
+                <span style={{ marginLeft: "5px", fontSize: "16px" }}>⌄</span>
+              </>
+            ) : (
+              <>
+                <span>Show fewer results</span>
+                <span style={{ marginLeft: "5px", fontSize: "16px" }}>⌃</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
