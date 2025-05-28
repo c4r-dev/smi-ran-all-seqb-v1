@@ -2,6 +2,59 @@
 import React, { useState, useEffect } from "react";
 import CustomButton from "./components/CustomButton";
 
+const Tooltip = ({ children, text, position = "top" }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: position === "top" ? "100%" : "auto",
+            top: position === "bottom" ? "100%" : "auto",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#333",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            whiteSpace: "normal",
+            width: "250px",
+            zIndex: 1000,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            marginBottom: position === "top" ? "5px" : "0",
+            marginTop: position === "bottom" ? "5px" : "0",
+          }}
+        >
+          {text}
+          <div
+            style={{
+              position: "absolute",
+              top: position === "top" ? "100%" : "auto",
+              bottom: position === "bottom" ? "100%" : "auto",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 0,
+              height: 0,
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: position === "top" ? "5px solid #333" : "none",
+              borderBottom: position === "bottom" ? "5px solid #333" : "none",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 const generateSystematic = (n = 200) => {
   return Array.from({ length: n }, (_, i) => (i % 2 === 0 ? "A" : "B"));
@@ -580,17 +633,53 @@ export default function Page() {
               <tr style={{ backgroundColor: "rgba(0, 200, 2, 0.6)", color: "black" }}>
                 <th style={{ padding: "8px 10px" }}></th>
                 <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px" }}>Effect</th>
-                <th style={{ padding: "8px 10px" }}>p-value</th>
-                <th style={{ padding: "8px 10px" }}>Run</th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
+                    Effect
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
+                    p-value
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
+                    Run
+                  </Tooltip>
+                </th>
                 <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px" }}>Effect</th>
-                <th style={{ padding: "8px 10px" }}>p-value</th>
-                <th style={{ padding: "8px 10px" }}>Run</th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
+                    Effect
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
+                    p-value
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
+                    Run
+                  </Tooltip>
+                </th>
                 <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px" }}>Effect</th>
-                <th style={{ padding: "8px 10px" }}>p-value</th>
-                <th style={{ padding: "8px 10px" }}>Run</th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
+                    Effect
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
+                    p-value
+                  </Tooltip>
+                </th>
+                <th style={{ padding: "8px 10px", cursor: "help" }}>
+                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
+                    Run
+                  </Tooltip>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -626,16 +715,31 @@ export default function Page() {
                           }}>{methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}</td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                          }}>{methodMap.systematic.stats.effectSize}</td>
+                            color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
+                              {methodMap.systematic.stats.effectSize}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                          }}>{methodMap.systematic.stats.pValue}</td>
+                            color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
+                              {methodMap.systematic.stats.pValue}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit"
-                          }}>{methodMap.systematic.stats.longestRun}</td>
+                            color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
+                              {methodMap.systematic.stats.longestRun}
+                            </Tooltip>
+                          </td>
                         </>
                       )}
                       {methodMap.manual && (
@@ -646,16 +750,31 @@ export default function Page() {
                           }}>{methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}</td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                          }}>{methodMap.manual.stats.effectSize}</td>
+                            color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
+                              {methodMap.manual.stats.effectSize}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                          }}>{methodMap.manual.stats.pValue}</td>
+                            color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
+                              {methodMap.manual.stats.pValue}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit"
-                          }}>{methodMap.manual.stats.longestRun}</td>
+                            color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
+                              {methodMap.manual.stats.longestRun}
+                            </Tooltip>
+                          </td>
                         </>
                       )}
                       {methodMap.random && (
@@ -666,16 +785,31 @@ export default function Page() {
                           }}>{methodMap.random.stats.countA}/{methodMap.random.stats.countB}</td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit"
-                          }}>{methodMap.random.stats.effectSize}</td>
+                            color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
+                              {methodMap.random.stats.effectSize}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit"
-                          }}>{methodMap.random.stats.pValue}</td>
+                            color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
+                              {methodMap.random.stats.pValue}
+                            </Tooltip>
+                          </td>
                           <td style={{
                             padding: "10px",
-                            color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit"
-                          }}>{methodMap.random.stats.longestRun}</td>
+                            color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit",
+                            cursor: "help"
+                          }}>
+                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
+                              {methodMap.random.stats.longestRun}
+                            </Tooltip>
+                          </td>
                         </>
                       )}
                     </tr>
