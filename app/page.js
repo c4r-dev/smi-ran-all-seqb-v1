@@ -68,9 +68,18 @@ const generateManual = (n = 200) => {
   const possibleDifferences = [0, 2, 4];
   const difference = possibleDifferences[Math.floor(Math.random() * possibleDifferences.length)];
 
+  // Randomly decide which group gets more (A or B)
+  const favorA = Math.random() < 0.5;
+  
   // Calculate counts based on the difference
-  const countA = Math.floor(n / 2) + Math.floor(difference / 2);
-  const countB = n - countA;
+  let countA, countB;
+  if (favorA) {
+    countA = Math.floor(n / 2) + Math.floor(difference / 2);
+    countB = n - countA;
+  } else {
+    countB = Math.floor(n / 2) + Math.floor(difference / 2);
+    countA = n - countB;
+  }
 
   // Create initial array with the right counts
   const elements = Array(countA).fill('A').concat(Array(countB).fill('B'));
@@ -511,9 +520,7 @@ export default function Page() {
   return (
     <div>
       <h2 className="responsive-text">
-        Now that we've identified the truly random sequence, let's compare how different allocation methods perform with larger sample sizes (n=200).
-        <br /> <br />
-        True effect size: .20
+        An intervention has a true effect size of .20. Generate sequences to explore how different randomization methods affect our ability to accurately reproduce that effect size in a new experiment with a large sample size (n=200).
       </h2>
 
       {/* All three bar charts displayed horizontally */}
@@ -588,17 +595,18 @@ export default function Page() {
 
       {/* Stats summary table - MODIFIED for better scrolling */}
       <div style={{
-        maxWidth: "1200px",
+        width: "80%",
         margin: "30px auto",
         boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
         borderRadius: "8px",
-        backgroundColor: "white"
+        backgroundColor: "white",
+        border: "1px solid black"
       }}>
         <h3 style={{
           textAlign: "center",
           marginBottom: "15px",
           padding: "15px 15px 0 15px"
-        }}>Comparison of Allocation Methods</h3>
+        }}>Generation History</h3>
 
         {/* Dedicated scrollable wrapper for the table with ID for reference */}
         <div 
@@ -613,7 +621,6 @@ export default function Page() {
           }}
         >
           <table style={{
-            minWidth: "900px",
             width: "100%",
             borderCollapse: "collapse",
             textAlign: "center"
@@ -621,197 +628,107 @@ export default function Page() {
             <thead style={{
               position: "sticky",
               top: "0",
-              zIndex: "2", // Increased z-index for header
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)" // Shadow for sticky header
+              zIndex: "10",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
             }}>
               <tr style={{ backgroundColor: "#00C802", color: "black" }}>
-                <th style={{ padding: "12px 15px" }}>Gen</th>
-                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Alternating Allocation</th>
-                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Manual Allocation</th>
-                <th colSpan="4" style={{ padding: "12px 15px", borderLeft: "2px solid white" }}>Randomized Allocation</th>
+                <th colSpan="2" style={{ 
+                  padding: "12px 15px", 
+                  borderRight: "2px solid white",
+                  backgroundColor: "#00C802"
+                }}>Sequence 1</th>
+                <th colSpan="2" style={{ 
+                  padding: "12px 15px", 
+                  borderRight: "2px solid white",
+                  backgroundColor: "#00C802"
+                }}>Sequence 2</th>
+                <th colSpan="2" style={{ 
+                  padding: "12px 15px",
+                  backgroundColor: "#00C802"
+                }}>Sequence 3</th>
               </tr>
-              <tr style={{ backgroundColor: "rgba(0, 200, 2, 0.6)", color: "black" }}>
-                <th style={{ padding: "8px 10px" }}></th>
-                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
-                    Effect
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
-                    p-value
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
-                    Run
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
-                    Effect
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
-                    p-value
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
-                    Run
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", borderLeft: "2px solid white" }}>Group A/B</th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="bottom">
-                    Effect
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="bottom">
-                    p-value
-                  </Tooltip>
-                </th>
-                <th style={{ padding: "8px 10px", cursor: "help" }}>
-                  <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="bottom">
-                    Run
-                  </Tooltip>
-                </th>
+              <tr style={{ backgroundColor: "#81C784", color: "black" }}>
+                <th style={{ 
+                  padding: "8px 10px", 
+                  borderRight: "1px solid white",
+                  backgroundColor: "#81C784"
+                }}>A/B</th>
+                <th style={{ 
+                  padding: "8px 10px", 
+                  borderRight: "2px solid white",
+                  backgroundColor: "#81C784"
+                }}>Run</th>
+                <th style={{ 
+                  padding: "8px 10px", 
+                  borderRight: "1px solid white",
+                  backgroundColor: "#81C784"
+                }}>A/B</th>
+                <th style={{ 
+                  padding: "8px 10px", 
+                  borderRight: "2px solid white",
+                  backgroundColor: "#81C784"
+                }}>Run</th>
+                <th style={{ 
+                  padding: "8px 10px", 
+                  borderRight: "1px solid white",
+                  backgroundColor: "#81C784"
+                }}>A/B</th>
+                <th style={{ 
+                  padding: "8px 10px",
+                  backgroundColor: "#81C784"
+                }}>Run</th>
               </tr>
             </thead>
             <tbody>
               {[...new Set(allGenerations.map(gen => gen.id))]
                 .sort((a, b) => b - a)
-                .map(genId => {
+                .map((genId, index) => {
                   const genEntries = allGenerations.filter(gen => gen.id === genId);
                   const methodMap = {};
                   genEntries.forEach(entry => {
                     methodMap[entry.method] = entry;
                   });
                   const isCurrentGen = genId === Math.max(...allGenerations.map(g => g.id));
+                  const isEvenRow = index % 2 === 0;
                   return (
                     <tr
                       key={`generation-${genId}`}
                       style={{
-                        backgroundColor: isCurrentGen ? "#f9f6ff" : "white",
+                        backgroundColor: isCurrentGen ? "#f9f6ff" : (isEvenRow ? "#f8f8f8" : "white"),
                         transition: "background-color 0.2s ease"
                       }}>
-                      <td style={{
-                        padding: "12px",
-                        fontWeight: "bold",
-                        backgroundColor: "#f0f0f0",
-                        position: "sticky", // Sticky first column
-                        left: 0,
-                        zIndex: "1"
-                      }}>{genId}</td>
-                      {methodMap.systematic && (
-                        <>
-                          <td style={{
-                            padding: "10px",
-                            borderLeft: "2px solid #eee"
-                          }}>{methodMap.systematic.stats.countA}/{methodMap.systematic.stats.countB}</td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.systematic.stats.effectSize > 0.15 ? "#228B22" : methodMap.systematic.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
-                              {methodMap.systematic.stats.effectSize}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.systematic.stats.pValue < 0.05 ? "#228B22" : methodMap.systematic.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
-                              {methodMap.systematic.stats.pValue}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.systematic.stats.longestRun > 5 ? "#DC143C" : methodMap.systematic.stats.longestRun < 3 ? "#228B22" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
-                              {methodMap.systematic.stats.longestRun}
-                            </Tooltip>
-                          </td>
-                        </>
-                      )}
-                      {methodMap.manual && (
-                        <>
-                          <td style={{
-                            padding: "10px",
-                            borderLeft: "2px solid #eee"
-                          }}>{methodMap.manual.stats.countA}/{methodMap.manual.stats.countB}</td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.manual.stats.effectSize > 0.15 ? "#228B22" : methodMap.manual.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
-                              {methodMap.manual.stats.effectSize}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.manual.stats.pValue < 0.05 ? "#228B22" : methodMap.manual.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
-                              {methodMap.manual.stats.pValue}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.manual.stats.longestRun > 5 ? "#DC143C" : methodMap.manual.stats.longestRun < 3 ? "#228B22" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
-                              {methodMap.manual.stats.longestRun}
-                            </Tooltip>
-                          </td>
-                        </>
-                      )}
-                      {methodMap.random && (
-                        <>
-                          <td style={{
-                            padding: "10px",
-                            borderLeft: "2px solid #eee"
-                          }}>{methodMap.random.stats.countA}/{methodMap.random.stats.countB}</td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.random.stats.effectSize > 0.15 ? "#228B22" : methodMap.random.stats.effectSize === 0 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A quantitative measure of the strength of the phenomenon being studied. This measure is typically achieved by standardizing the difference between groups to contextualize the magnitude of the effect relative to the variability in the data." position="top">
-                              {methodMap.random.stats.effectSize}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.random.stats.pValue < 0.05 ? "#228B22" : methodMap.random.stats.pValue > 0.5 ? "#DC143C" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="Probability of obtaining results at least as extreme as those observed if H₀ is true." position="top">
-                              {methodMap.random.stats.pValue}
-                            </Tooltip>
-                          </td>
-                          <td style={{
-                            padding: "10px",
-                            color: methodMap.random.stats.longestRun > 5 ? "#DC143C" : methodMap.random.stats.longestRun < 3 ? "#228B22" : "inherit",
-                            cursor: "help"
-                          }}>
-                            <Tooltip text="A sequence of consecutive assignments to the same treatment group in a randomization scheme." position="top">
-                              {methodMap.random.stats.longestRun}
-                            </Tooltip>
-                          </td>
-                        </>
-                      )}
+                      {/* Sequence 1 (Systematic) */}
+                      <td style={{ padding: "10px", borderRight: "1px solid #eee" }}>
+                        {methodMap.systematic ? `${methodMap.systematic.stats.countA}/${methodMap.systematic.stats.countB}` : ''}
+                      </td>
+                      <td style={{ 
+                        padding: "10px", 
+                        borderRight: "2px solid #eee",
+                        color: methodMap.systematic?.stats.longestRun === 1 ? "#00C802" : "inherit" 
+                      }}>
+                        {methodMap.systematic ? methodMap.systematic.stats.longestRun : ''}
+                      </td>
+                      {/* Sequence 2 (Manual) */}
+                      <td style={{ padding: "10px", borderRight: "1px solid #eee" }}>
+                        {methodMap.manual ? `${methodMap.manual.stats.countA}/${methodMap.manual.stats.countB}` : ''}
+                      </td>
+                      <td style={{ 
+                        padding: "10px", 
+                        borderRight: "2px solid #eee",
+                        color: methodMap.manual?.stats.longestRun <= 3 ? "#00C802" : methodMap.manual?.stats.longestRun >= 6 ? "#DC143C" : "inherit"
+                      }}>
+                        {methodMap.manual ? methodMap.manual.stats.longestRun : ''}
+                      </td>
+                      {/* Sequence 3 (Random) */}
+                      <td style={{ padding: "10px", borderRight: "1px solid #eee" }}>
+                        {methodMap.random ? `${methodMap.random.stats.countA}/${methodMap.random.stats.countB}` : ''}
+                      </td>
+                      <td style={{ 
+                        padding: "10px",
+                        color: methodMap.random?.stats.longestRun <= 5 ? "#00C802" : "#DC143C"
+                      }}>
+                        {methodMap.random ? methodMap.random.stats.longestRun : ''}
+                      </td>
                     </tr>
                   );
                 })}
